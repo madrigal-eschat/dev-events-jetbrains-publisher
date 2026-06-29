@@ -10,5 +10,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationService
             serviceImplementation="com.github.spacepilothannah.settings.PluginSettings"/>
+        <applicationService
+            serviceImplementation="com.github.spacepilothannah.mqtt.MqttPublisherService"/>
     </extensions>
 </idea-plugin>
