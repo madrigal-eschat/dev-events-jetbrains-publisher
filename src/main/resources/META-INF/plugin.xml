@@ -25,4 +25,11 @@
         <postStartupActivity
             implementation="com.github.spacepilothannah.StartupNotifier"/>
     </extensions>
+
+    <listeners>
+        <listener class="com.github.spacepilothannah.listeners.FileSaveListener"
+                  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
+        <listener class="com.github.spacepilothannah.listeners.FileEditorListener"
+                  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+    </listeners>
 </idea-plugin>
