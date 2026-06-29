@@ -45,5 +45,7 @@
                   topic="com.intellij.xdebugger.XDebuggerManagerListener.TOPIC"/>
         <listener class="com.github.spacepilothannah.listeners.AppFocusListener"
                   topic="com.intellij.openapi.application.ApplicationActivationListener"/>
+        <listener class="com.github.spacepilothannah.listeners.InspectionListener"
+                  topic="com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.DAEMON_EVENT_TOPIC"/>
     </listeners>
 </idea-plugin>
