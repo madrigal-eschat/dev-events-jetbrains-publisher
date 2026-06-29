@@ -63,7 +63,7 @@ class PluginSettings : PersistentStateComponent<PluginSettings.State> {
             "test_start", "test_success", "test_fail",
             "file_save", "file_open", "file_close",
             "breakpoint_hit",
-            "vcs_commit", "vcs_push", "vcs_branch_change",
+            "vcs_commit", "vcs_branch_change",
             "editor_focus_gained", "editor_focus_lost",
             "inspection_complete", "key_presses"
         )

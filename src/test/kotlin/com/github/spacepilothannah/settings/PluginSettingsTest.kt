@@ -55,7 +55,7 @@ class PluginSettingsTest {
     }
 
     @Test
-    fun `ALL_EVENTS contains all 17 events`() {
-        assertEquals(17, PluginSettings.ALL_EVENTS.size)
+    fun `ALL_EVENTS contains all 16 events`() {
+        assertEquals(16, PluginSettings.ALL_EVENTS.size)
     }
 }
