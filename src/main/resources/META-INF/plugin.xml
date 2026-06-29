@@ -12,5 +12,17 @@
             serviceImplementation="com.github.spacepilothannah.settings.PluginSettings"/>
         <applicationService
             serviceImplementation="com.github.spacepilothannah.mqtt.MqttPublisherService"/>
+
+        <applicationConfigurable
+            instance="com.github.spacepilothannah.settings.PluginSettingsConfigurable"
+            displayName="IDE Events"
+            parentId="tools"/>
+
+        <notificationGroup id="IDE Events Publisher"
+                           displayType="BALLOON"
+                           isLogByDefault="true"/>
+
+        <postStartupActivity
+            implementation="com.github.spacepilothannah.StartupNotifier"/>
     </extensions>
 </idea-plugin>
