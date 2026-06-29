@@ -41,5 +41,9 @@
         <listener class="com.github.spacepilothannah.listeners.VcsBranchListener"
                   topic="com.intellij.openapi.vcs.BranchChangeListener.VCS_BRANCH_CHANGED"/>
         <!-- TODO: VcsPushListener registration deferred — push interface not yet confirmed via jb.gg/ipe -->
+        <listener class="com.github.spacepilothannah.listeners.BreakpointListener"
+                  topic="com.intellij.xdebugger.XDebuggerManagerListener.TOPIC"/>
+        <listener class="com.github.spacepilothannah.listeners.AppFocusListener"
+                  topic="com.intellij.openapi.application.ApplicationActivationListener"/>
     </listeners>
 </idea-plugin>
