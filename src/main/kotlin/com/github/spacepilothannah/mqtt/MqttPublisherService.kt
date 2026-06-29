@@ -4,7 +4,7 @@ import com.github.spacepilothannah.settings.PluginSettings
 import com.github.spacepilothannah.settings.getPassword
 import com.google.gson.GsonBuilder
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.ex.ApplicationInfoEx
+import com.intellij.openapi.application.ApplicationNamesInfo
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient
@@ -43,7 +43,7 @@ class MqttPublisherService {
 
     private val ideIdentifier: String by lazy {
         runCatching {
-            ApplicationInfoEx.getInstanceEx().fullApplicationName.lowercase().replace(" ", "-")
+            ApplicationNamesInfo.getInstance().productName.lowercase().replace(" ", "-")
         }.getOrDefault("intellij-idea")
     }
 
