@@ -8,10 +8,7 @@ import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.project.Project
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.editor.markup.HighlighterTargetArea
-import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
-import com.intellij.openapi.editor.ex.MarkupModelEx
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
 
 fun buildInspectionData(mode: EventMode, errorCount: Int, warningCount: Int): Map<String, Any?> =
