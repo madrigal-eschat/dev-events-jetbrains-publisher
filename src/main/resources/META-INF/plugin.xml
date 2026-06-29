@@ -43,13 +43,16 @@
         <listener class="com.github.spacepilothannah.listeners.TestRunListener"
                   topic="com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener"/>
         <listener class="com.github.spacepilothannah.listeners.VcsBranchListener"
-                  topic="com.intellij.openapi.vcs.BranchChangeListener.VCS_BRANCH_CHANGED"/>
+                  topic="com.intellij.openapi.vcs.BranchChangeListener"/>
         <!-- TODO: VcsPushListener registration deferred — push interface not yet confirmed via jb.gg/ipe -->
         <listener class="com.github.spacepilothannah.listeners.BreakpointListener"
-                  topic="com.intellij.xdebugger.XDebuggerManagerListener.TOPIC"/>
+                  topic="com.intellij.xdebugger.XDebuggerManagerListener"/>
         <listener class="com.github.spacepilothannah.listeners.AppFocusListener"
                   topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-        <listener class="com.github.spacepilothannah.listeners.InspectionListener"
-                  topic="com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.DAEMON_EVENT_TOPIC"/>
     </listeners>
+
+    <projectListeners>
+        <listener class="com.github.spacepilothannah.listeners.InspectionListener"
+                  topic="com.intellij.codeInsight.daemon.DaemonCodeAnalyzer$DaemonListener"/>
+    </projectListeners>
 </idea-plugin>
