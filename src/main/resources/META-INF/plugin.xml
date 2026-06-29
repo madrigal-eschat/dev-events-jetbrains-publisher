@@ -24,6 +24,9 @@
 
         <postStartupActivity
             implementation="com.github.spacepilothannah.StartupNotifier"/>
+
+        <vcsCheckinHandlerFactory
+            implementation="com.github.spacepilothannah.listeners.VcsCommitListener"/>
     </extensions>
 
     <listeners>
@@ -35,5 +38,8 @@
                   topic="com.intellij.task.ProjectTaskListener"/>
         <listener class="com.github.spacepilothannah.listeners.TestRunListener"
                   topic="com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener"/>
+        <listener class="com.github.spacepilothannah.listeners.VcsBranchListener"
+                  topic="com.intellij.openapi.vcs.BranchChangeListener.VCS_BRANCH_CHANGED"/>
+        <!-- TODO: VcsPushListener registration deferred — push interface not yet confirmed via jb.gg/ipe -->
     </listeners>
 </idea-plugin>
