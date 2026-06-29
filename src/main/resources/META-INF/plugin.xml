@@ -12,6 +12,8 @@
             serviceImplementation="com.github.spacepilothannah.settings.PluginSettings"/>
         <applicationService
             serviceImplementation="com.github.spacepilothannah.mqtt.MqttPublisherService"/>
+        <applicationService
+            serviceImplementation="com.github.spacepilothannah.listeners.KeyPressListener"/>
 
         <applicationConfigurable
             instance="com.github.spacepilothannah.settings.PluginSettingsConfigurable"
@@ -24,6 +26,8 @@
 
         <postStartupActivity
             implementation="com.github.spacepilothannah.StartupNotifier"/>
+        <postStartupActivity
+            implementation="com.github.spacepilothannah.KeyPressInstaller"/>
 
         <vcsCheckinHandlerFactory
             implementation="com.github.spacepilothannah.listeners.VcsCommitListener"/>
