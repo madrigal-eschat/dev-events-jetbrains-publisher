@@ -6,7 +6,6 @@ import com.github.spacepilothannah.settings.PluginSettings
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileDocumentManagerListener
-import com.intellij.openapi.roots.ProjectFileIndex
 
 fun buildFileData(mode: EventMode, filePath: String?): Map<String, Any?> =
     mapOf("file_path" to if (mode == EventMode.FULL) filePath else null)
