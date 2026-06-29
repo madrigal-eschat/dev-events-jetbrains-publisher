@@ -31,5 +31,9 @@
                   topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
         <listener class="com.github.spacepilothannah.listeners.FileEditorListener"
                   topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+        <listener class="com.github.spacepilothannah.listeners.BuildTaskListener"
+                  topic="com.intellij.task.ProjectTaskListener"/>
+        <listener class="com.github.spacepilothannah.listeners.TestRunListener"
+                  topic="com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener"/>
     </listeners>
 </idea-plugin>
