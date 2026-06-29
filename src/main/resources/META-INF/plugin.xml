@@ -8,5 +8,7 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <applicationService
+            serviceImplementation="com.github.spacepilothannah.settings.PluginSettings"/>
     </extensions>
 </idea-plugin>
