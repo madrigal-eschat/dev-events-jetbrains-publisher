@@ -44,13 +44,13 @@ class KeyPressListener : TypedActionHandler {
     private fun tick() {
         val current = counter.getAndSet(0)
         val settings = PluginSettings.getInstance()
-        val mode = settings.getEventMode("key_presses")
+        val mode = settings.getEventMode("devevents.keypresses")
 
         if (mode != EventMode.OFF) {
             if (current > 0) {
-                MqttPublisherService.getInstance().publish("key_presses", buildKeyPressData(mode, current))
+                MqttPublisherService.getInstance().publish("devevents.keypresses", buildKeyPressData(mode, current))
             } else if (isZeroTransition(lastCount, current)) {
-                MqttPublisherService.getInstance().publish("key_presses", mapOf("count" to 0))
+                MqttPublisherService.getInstance().publish("devevents.keypresses", mapOf("count" to 0))
             }
         }
 

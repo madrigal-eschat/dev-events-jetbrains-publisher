@@ -31,14 +31,14 @@ class PluginSettingsTest {
     @Test
     fun `getEventMode returns OFF for unknown event`() {
         val settings = PluginSettings()
-        assertEquals(EventMode.OFF, settings.getEventMode("file_save"))
+        assertEquals(EventMode.OFF, settings.getEventMode("devevents.file.saved"))
     }
 
     @Test
     fun `setEventMode and getEventMode round-trip`() {
         val settings = PluginSettings()
-        settings.setEventMode("file_save", EventMode.FULL)
-        assertEquals(EventMode.FULL, settings.getEventMode("file_save"))
+        settings.setEventMode("devevents.file.saved", EventMode.FULL)
+        assertEquals(EventMode.FULL, settings.getEventMode("devevents.file.saved"))
     }
 
     @Test
@@ -50,13 +50,13 @@ class PluginSettingsTest {
     @Test
     fun `allEventsOff returns false when any event is not OFF`() {
         val settings = PluginSettings()
-        settings.setEventMode("file_save", EventMode.REDACTED)
+        settings.setEventMode("devevents.file.saved", EventMode.REDACTED)
         assertFalse(settings.allEventsOff())
     }
 
     @Test
-    fun `ALL_EVENTS contains all 16 events`() {
-        assertEquals(16, PluginSettings.ALL_EVENTS.size)
+    fun `ALL_EVENTS contains all 15 events`() {
+        assertEquals(15, PluginSettings.ALL_EVENTS.size)
     }
 
     @Test
@@ -67,7 +67,7 @@ class PluginSettingsTest {
     @Test
     fun `FULL_ONLY_EVENTS contains exactly the events with no sensitive fields`() {
         assertEquals(
-            setOf("vcs_commit", "test_start", "editor_focus_gained", "editor_focus_lost"),
+            setOf("devevents.vcs.committed", "devevents.test.started", "devevents.editor.focus.gained", "devevents.editor.focus.lost"),
             PluginSettings.FULL_ONLY_EVENTS
         )
     }

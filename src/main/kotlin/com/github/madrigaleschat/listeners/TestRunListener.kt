@@ -25,9 +25,9 @@ class TestRunListener : SMTRunnerEventsListener {
 
     override fun onTestingStarted(rootTestProxy: SMTestProxy.SMRootTestProxy) {
         val settings = PluginSettings.getInstance()
-        val mode = settings.getEventMode("test_start")
+        val mode = settings.getEventMode("devevents.test.started")
         if (mode == EventMode.OFF) return
-        MqttPublisherService.getInstance().publish("test_start", emptyMap())
+        MqttPublisherService.getInstance().publish("devevents.test.started", emptyMap())
     }
 
     override fun onTestingFinished(rootTestProxy: SMTestProxy.SMRootTestProxy) {
@@ -37,7 +37,7 @@ class TestRunListener : SMTRunnerEventsListener {
         val failed = allTests.count { it.isDefect }
         val skipped = allTests.count { it.isIgnored }
         val durationMs = rootTestProxy.duration ?: 0L
-        val eventName = if (failed > 0) "test_fail" else "test_success"
+        val eventName = if (failed > 0) "devevents.test.failed" else "devevents.test.succeeded"
         val mode = settings.getEventMode(eventName)
         if (mode == EventMode.OFF) return
         MqttPublisherService.getInstance().publish(

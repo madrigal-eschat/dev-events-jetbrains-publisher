@@ -18,7 +18,7 @@ class BreakpointListener : XDebuggerManagerListener {
         debugProcess.session.addSessionListener(object : XDebugSessionListener {
             override fun sessionPaused() {
                 val settings = PluginSettings.getInstance()
-                val mode = settings.getEventMode("breakpoint_hit")
+                val mode = settings.getEventMode("devevents.breakpoint.hit")
                 if (mode == EventMode.OFF) return
 
                 val position = debugProcess.session.currentPosition
@@ -26,7 +26,7 @@ class BreakpointListener : XDebuggerManagerListener {
                 val line = position?.line?.let { it + 1 } // convert 0-based to 1-based
 
                 MqttPublisherService.getInstance().publish(
-                    "breakpoint_hit",
+                    "devevents.breakpoint.hit",
                     buildBreakpointData(mode, filePath, line)
                 )
             }

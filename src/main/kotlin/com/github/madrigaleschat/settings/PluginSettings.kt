@@ -61,16 +61,19 @@ class PluginSettings : PersistentStateComponent<PluginSettings.State> {
         fun getInstance(): PluginSettings = service()
 
         val ALL_EVENTS = listOf(
-            "task_start", "task_success", "task_fail",
-            "test_start", "test_success", "test_fail",
-            "file_save", "file_open", "file_close",
-            "breakpoint_hit",
-            "vcs_commit", "vcs_branch_change",
-            "editor_focus_gained", "editor_focus_lost",
-            "inspection_complete", "key_presses"
+            "devevents.task.started", "devevents.task.succeeded", "devevents.task.failed",
+            "devevents.test.started", "devevents.test.succeeded", "devevents.test.failed",
+            "devevents.file.saved", "devevents.file.opened", "devevents.file.closed",
+            "devevents.breakpoint.hit",
+            "devevents.vcs.committed", "devevents.vcs.branch.changed",
+            "devevents.editor.focus.gained", "devevents.editor.focus.lost",
+            "devevents.keypresses"
         )
 
         // Events with no sensitive fields — REDACTED is identical to FULL for these.
-        val FULL_ONLY_EVENTS = setOf("vcs_commit", "test_start", "editor_focus_gained", "editor_focus_lost")
+        val FULL_ONLY_EVENTS = setOf(
+            "devevents.vcs.committed", "devevents.test.started",
+            "devevents.editor.focus.gained", "devevents.editor.focus.lost"
+        )
     }
 }

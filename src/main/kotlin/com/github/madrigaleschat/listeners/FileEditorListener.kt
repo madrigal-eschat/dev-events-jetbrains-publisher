@@ -10,19 +10,19 @@ import com.intellij.openapi.vfs.VirtualFile
 class FileEditorListener : FileEditorManagerListener {
     override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
         val settings = PluginSettings.getInstance()
-        val mode = settings.getEventMode("file_open")
+        val mode = settings.getEventMode("devevents.file.opened")
         if (mode == EventMode.OFF) return
         MqttPublisherService.getInstance().publish(
-            "file_open", buildFileData(mode, file.path), source.project
+            "devevents.file.opened", buildFileData(mode, file.path), source.project
         )
     }
 
     override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
         val settings = PluginSettings.getInstance()
-        val mode = settings.getEventMode("file_close")
+        val mode = settings.getEventMode("devevents.file.closed")
         if (mode == EventMode.OFF) return
         MqttPublisherService.getInstance().publish(
-            "file_close", buildFileData(mode, file.path), source.project
+            "devevents.file.closed", buildFileData(mode, file.path), source.project
         )
     }
 }

@@ -25,12 +25,12 @@ class BuildTaskListener : ProjectTaskListener {
         startTimes[System.identityHashCode(context)] = System.currentTimeMillis()
 
         val settings = PluginSettings.getInstance()
-        val mode = settings.getEventMode("task_start")
+        val mode = settings.getEventMode("devevents.task.started")
         if (mode == EventMode.OFF) return
 
         val name = context.runConfiguration?.name
         MqttPublisherService.getInstance().publish(
-            "task_start", buildTaskStartData(mode, name)
+            "devevents.task.started", buildTaskStartData(mode, name)
         )
     }
 
@@ -40,7 +40,7 @@ class BuildTaskListener : ProjectTaskListener {
         val durationMs = startTime?.let { System.currentTimeMillis() - it }
 
         val settings = PluginSettings.getInstance()
-        val eventName = if (result.hasErrors()) "task_fail" else "task_success"
+        val eventName = if (result.hasErrors()) "devevents.task.failed" else "devevents.task.succeeded"
         val mode = settings.getEventMode(eventName)
         if (mode == EventMode.OFF) return
 

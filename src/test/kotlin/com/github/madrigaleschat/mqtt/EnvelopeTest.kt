@@ -5,24 +5,62 @@ import org.junit.Test
 
 class EnvelopeTest {
 
+    private fun env(type: String = "devevents.file.saved", data: Map<String, Any?> = emptyMap(),
+                    source: String = "editor/jeff/jetbrains/intellij-idea", subject: String? = null) =
+        buildEnvelope(type, data, source, subject)
+
     @Test
-    fun `buildEnvelope sets version to 1`() {
-        val env = buildEnvelope("file_save", mapOf("file_path" to "/a.kt"), mapOf("ide_family" to "jetbrains"))
-        assertEquals(1, env["version"])
+    fun `buildEnvelope sets specversion to 1_0`() {
+        assertEquals("1.0", env()["specversion"])
     }
 
     @Test
-    fun `buildEnvelope sets event name`() {
-        val env = buildEnvelope("file_save", emptyMap(), emptyMap())
-        assertEquals("file_save", env["event"])
+    fun `buildEnvelope sets type`() {
+        assertEquals("devevents.file.saved", env()["type"])
+    }
+
+    @Test
+    fun `buildEnvelope sets sourcetype to editor`() {
+        assertEquals("editor", env()["sourcetype"])
+    }
+
+    @Test
+    fun `buildEnvelope sets source`() {
+        assertEquals("editor/jeff/jetbrains/intellij-idea", env()["source"])
+    }
+
+    @Test
+    fun `buildEnvelope id is a UUID`() {
+        val id = env()["id"] as String
+        assertTrue(id.matches(Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")))
+    }
+
+    @Test
+    fun `buildEnvelope each call gets unique id`() {
+        assertNotEquals(env()["id"], env()["id"])
+    }
+
+    @Test
+    fun `buildEnvelope time is ISO 8601`() {
+        val time = env()["time"] as String
+        assertTrue(time.matches(Regex("\\d{4}-\\d{2}-\\d{2}T.*")))
     }
 
     @Test
     fun `buildEnvelope includes data`() {
-        val env = buildEnvelope("file_save", mapOf("file_path" to "/a.kt"), emptyMap())
+        val result = env(data = mapOf("file_path" to "/a.kt"))
         @Suppress("UNCHECKED_CAST")
-        val data = env["data"] as Map<String, Any?>
-        assertEquals("/a.kt", data["file_path"])
+        assertEquals("/a.kt", (result["data"] as Map<String, Any?>)["file_path"])
+    }
+
+    @Test
+    fun `buildEnvelope includes subject when provided`() {
+        assertEquals("~/projects/foo", env(subject = "~/projects/foo")["subject"])
+    }
+
+    @Test
+    fun `buildEnvelope subject is null when omitted`() {
+        assertNull(env(subject = null)["subject"])
     }
 
     @Test
@@ -38,12 +76,5 @@ class EnvelopeTest {
         val nested = (result["data"] as Map<String, Any?>)
         assertFalse(nested.containsKey("x"))
         assertEquals(1, nested["y"])
-    }
-
-    @Test
-    fun `buildEnvelope timestamp is ISO 8601`() {
-        val env = buildEnvelope("x", emptyMap(), emptyMap())
-        val ts = env["timestamp"] as String
-        assertTrue(ts.matches(Regex("\\d{4}-\\d{2}-\\d{2}T.*")))
     }
 }

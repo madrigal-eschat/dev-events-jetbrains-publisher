@@ -13,9 +13,9 @@ class VcsCommitListener : CheckinHandlerFactory() {
         return object : CheckinHandler() {
             override fun checkinSuccessful() {
                 val settings = PluginSettings.getInstance()
-                val mode = settings.getEventMode("vcs_commit")
+                val mode = settings.getEventMode("devevents.vcs.committed")
                 if (mode == EventMode.OFF) return
-                MqttPublisherService.getInstance().publish("vcs_commit", emptyMap(), panel.project)
+                MqttPublisherService.getInstance().publish("devevents.vcs.committed", emptyMap(), panel.project)
             }
         }
     }

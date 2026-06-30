@@ -13,10 +13,10 @@ class VcsBranchListener : BranchChangeListener {
 
     override fun branchHasChanged(branchName: String) {
         val settings = PluginSettings.getInstance()
-        val mode = settings.getEventMode("vcs_branch_change")
+        val mode = settings.getEventMode("devevents.vcs.branch.changed")
         if (mode == EventMode.OFF) return
         MqttPublisherService.getInstance().publish(
-            "vcs_branch_change", buildBranchData(mode, branchName)
+            "devevents.vcs.branch.changed", buildBranchData(mode, branchName)
         )
     }
 }

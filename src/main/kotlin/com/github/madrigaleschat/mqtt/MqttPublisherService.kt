@@ -4,6 +4,7 @@ import com.github.madrigaleschat.settings.PluginSettings
 import com.github.madrigaleschat.settings.getPassword
 import com.google.gson.GsonBuilder
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ApplicationNamesInfo
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient
@@ -14,16 +15,21 @@ import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.time.Instant
+import java.util.UUID
 
 fun buildEnvelope(
-    eventName: String,
+    type: String,
     data: Map<String, Any?>,
-    source: Map<String, Any?>
+    source: String,
+    subject: String?
 ): Map<String, Any?> = mapOf(
-    "version" to 1,
-    "event" to eventName,
-    "timestamp" to Instant.now().toString(),
+    "specversion" to "1.0",
+    "id" to UUID.randomUUID().toString(),
+    "type" to type,
     "source" to source,
+    "sourcetype" to "editor",
+    "subject" to subject,
+    "time" to Instant.now().toString(),
     "data" to data
 )
 
@@ -67,7 +73,11 @@ class MqttPublisherService {
         runCatching { InetAddress.getLocalHost().hostName }.getOrDefault("unknown")
     }
 
-    private val ideIdentifier = "DevEventsPublisher"
+    private val ideSpecific: String by lazy {
+        runCatching {
+            ApplicationNamesInfo.getInstance().productName.lowercase().replace(" ", "-")
+        }.getOrDefault("intellij-idea")
+    }
 
     private val gson = GsonBuilder().create()
 
@@ -113,21 +123,22 @@ class MqttPublisherService {
     fun publish(eventName: String, data: Map<String, Any?>, project: Project? = null) {
         val c = client ?: return
         if (!c.isConnected) return
-
         val settings = PluginSettings.getInstance()
         if (!isOnHomeNetwork(settings.homeSubnet)) return
 
-        val source = buildMap<String, Any?> {
-            put("ide_family", "jetbrains")
-            put("ide", ideIdentifier)
-            if (settings.includeHost) put("host", hostname)
-            if (settings.includeProject && project != null) put("project", project.name)
-        }
+        val host = if (settings.includeHost) hostname.substringBefore('.') else "redacted"
+        val source = "editor/$host/jetbrains/$ideSpecific"
 
-        val envelope = buildEnvelope(eventName, data, source).filterNulls()
+        val subject: String? = if (settings.includeProject && project != null) {
+            val base = project.basePath ?: project.name
+            val home = System.getProperty("user.home") ?: ""
+            if (home.isNotEmpty() && base.startsWith(home)) "~" + base.substring(home.length) else base
+        } else null
+
+        val envelope = buildEnvelope(eventName, data, source, subject).filterNulls()
         val json = gson.toJson(envelope)
 
-        val topic = if (settings.includeHost) "${settings.topicPrefix}/$hostname"
+        val topic = if (settings.includeHost) "${settings.topicPrefix}/${hostname.substringBefore('.')}"
                     else settings.topicPrefix
 
         runCatching {

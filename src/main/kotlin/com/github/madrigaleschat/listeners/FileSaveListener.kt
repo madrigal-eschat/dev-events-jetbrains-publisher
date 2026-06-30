@@ -13,7 +13,7 @@ fun buildFileData(mode: EventMode, filePath: String?): Map<String, Any?> =
 class FileSaveListener : FileDocumentManagerListener {
     override fun beforeDocumentSaving(document: Document) {
         val settings = PluginSettings.getInstance()
-        val mode = settings.getEventMode("file_save")
+        val mode = settings.getEventMode("devevents.file.saved")
         if (mode == EventMode.OFF) return
 
         val file = FileDocumentManager.getInstance().getFile(document)
@@ -21,7 +21,7 @@ class FileSaveListener : FileDocumentManagerListener {
             com.intellij.openapi.project.ProjectLocator.getInstance().guessProjectForFile(it)
         }
         MqttPublisherService.getInstance().publish(
-            "file_save",
+            "devevents.file.saved",
             buildFileData(mode, file?.path),
             project
         )
