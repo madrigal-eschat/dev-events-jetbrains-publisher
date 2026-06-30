@@ -3,7 +3,7 @@
     <id>com.github.madrigaleschat.DevEventsPublisher</id>
     <name>IDE Events Publisher</name>
     <vendor>madrigaleschat</vendor>
-    <description>Publishes IDE events to an MQTT broker.</description>
+    <description>Publishes (redactable) events to an MQTT broker of your choice</description>
 
     <depends>com.intellij.modules.platform</depends>
 
