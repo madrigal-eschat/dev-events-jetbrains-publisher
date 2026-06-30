@@ -58,4 +58,17 @@ class PluginSettingsTest {
     fun `ALL_EVENTS contains all 16 events`() {
         assertEquals(16, PluginSettings.ALL_EVENTS.size)
     }
+
+    @Test
+    fun `FULL_ONLY_EVENTS are a subset of ALL_EVENTS`() {
+        assertTrue(PluginSettings.ALL_EVENTS.containsAll(PluginSettings.FULL_ONLY_EVENTS))
+    }
+
+    @Test
+    fun `FULL_ONLY_EVENTS contains exactly the events with no sensitive fields`() {
+        assertEquals(
+            setOf("vcs_commit", "test_start", "editor_focus_gained", "editor_focus_lost"),
+            PluginSettings.FULL_ONLY_EVENTS
+        )
+    }
 }

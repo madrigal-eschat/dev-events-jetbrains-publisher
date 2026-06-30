@@ -68,6 +68,15 @@ class PluginSettingsPanel {
         updateWarning()
     }
 
+    private fun setAllModes(mode: EventMode) {
+        table.cellEditor?.stopCellEditing()
+        eventNames.forEachIndexed { i, name ->
+            val effective = if (mode == EventMode.REDACTED && name in PluginSettings.FULL_ONLY_EVENTS)
+                EventMode.FULL else mode
+            tableModel.setValueAt(effective, i, 1)
+        }
+    }
+
     private fun updateWarning() {
         val allOff = eventNames.indices.all { tableModel.getValueAt(it, 1) == EventMode.OFF }
         warningLabel.isVisible = allOff
@@ -110,6 +119,18 @@ class PluginSettingsPanel {
 
         gc.gridy = row++; gc.fill = GridBagConstraints.NONE
         p.add(warningLabel, gc)
+
+        val buttonStrip = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.X_AXIS)
+            add(JButton("Set All Off").apply { addActionListener { setAllModes(EventMode.OFF) } })
+            add(Box.createHorizontalStrut(4))
+            add(JButton("Set All Redacted").apply { addActionListener { setAllModes(EventMode.REDACTED) } })
+            add(Box.createHorizontalStrut(4))
+            add(JButton("Set All Full").apply { addActionListener { setAllModes(EventMode.FULL) } })
+            add(Box.createHorizontalGlue())
+        }
+        gc.gridy = row++; gc.fill = GridBagConstraints.HORIZONTAL
+        p.add(buttonStrip, gc)
 
         gc.gridy = row; gc.fill = GridBagConstraints.BOTH
         gc.weighty = 1.0

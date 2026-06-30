@@ -67,5 +67,8 @@ class PluginSettings : PersistentStateComponent<PluginSettings.State> {
             "editor_focus_gained", "editor_focus_lost",
             "inspection_complete", "key_presses"
         )
+
+        // Events with no sensitive fields — REDACTED is identical to FULL for these.
+        val FULL_ONLY_EVENTS = setOf("vcs_commit", "test_start", "editor_focus_gained", "editor_focus_lost")
     }
 }
