@@ -1,6 +1,6 @@
 import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
 
-rootProject.name = "IDEEventsToWebhook"
+rootProject.name = "IDEEvents"
 
 pluginManagement {
     plugins {
