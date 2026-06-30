@@ -1,5 +1,5 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# IDEEventsToWebhook Changelog
+# DevEventsPublisher Changelog
 
 ## [Unreleased]
