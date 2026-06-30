@@ -9,7 +9,10 @@ import com.intellij.openapi.vcs.checkin.CheckinHandler
 import com.intellij.openapi.vcs.checkin.CheckinHandlerFactory
 
 class VcsCommitListener : CheckinHandlerFactory() {
-    override fun createHandler(panel: CheckinProjectPanel, commitContext: CommitContext): CheckinHandler {
+    override fun createHandler(
+        panel: CheckinProjectPanel,
+        commitContext: CommitContext,
+    ): CheckinHandler {
         return object : CheckinHandler() {
             override fun checkinSuccessful() {
                 val settings = PluginSettings.getInstance()

@@ -17,15 +17,13 @@ fun savePassword(password: String) {
     PasswordSafe.instance.set(attrs, Credentials("mqtt", password))
 }
 
-fun getPassword(): String =
-    PasswordSafe.instance.getPassword(CredentialAttributes(CREDENTIAL_SERVICE_NAME)) ?: ""
+fun getPassword(): String = PasswordSafe.instance.getPassword(CredentialAttributes(CREDENTIAL_SERVICE_NAME)) ?: ""
 
 @State(
     name = "com.github.madrigaleschat.DevEventsPublisher",
-    storages = [Storage("DevEventsPublisher.xml")]
+    storages = [Storage("DevEventsPublisher.xml")],
 )
 class PluginSettings : PersistentStateComponent<PluginSettings.State> {
-
     data class State(
         var brokerUrl: String = "tcp://localhost:1883",
         var username: String = "",
@@ -34,46 +32,87 @@ class PluginSettings : PersistentStateComponent<PluginSettings.State> {
         var includeHost: Boolean = true,
         var includeProject: Boolean = true,
         var homeSubnet: String = "",
-        var eventModes: MutableMap<String, String> = mutableMapOf()
+        var eventModes: MutableMap<String, String> = mutableMapOf(),
     )
 
     private var _state = State()
 
     override fun getState(): State = _state
-    override fun loadState(state: State) { _state = state }
 
-    var brokerUrl: String get() = _state.brokerUrl; set(v) { _state.brokerUrl = v }
-    var username: String get() = _state.username; set(v) { _state.username = v }
-    var clientId: String get() = _state.clientId; set(v) { _state.clientId = v }
-    var topicPrefix: String get() = _state.topicPrefix; set(v) { _state.topicPrefix = v }
-    var includeHost: Boolean get() = _state.includeHost; set(v) { _state.includeHost = v }
-    var includeProject: Boolean get() = _state.includeProject; set(v) { _state.includeProject = v }
-    var homeSubnet: String get() = _state.homeSubnet; set(v) { _state.homeSubnet = v }
+    override fun loadState(state: State) {
+        _state = state
+    }
+
+    var brokerUrl: String get() = _state.brokerUrl
+        set(v) {
+            _state.brokerUrl = v
+        }
+    var username: String get() = _state.username
+        set(v) {
+            _state.username = v
+        }
+    var clientId: String get() = _state.clientId
+        set(v) {
+            _state.clientId = v
+        }
+    var topicPrefix: String get() = _state.topicPrefix
+        set(v) {
+            _state.topicPrefix = v
+        }
+    var includeHost: Boolean get() = _state.includeHost
+        set(v) {
+            _state.includeHost = v
+        }
+    var includeProject: Boolean get() = _state.includeProject
+        set(v) {
+            _state.includeProject = v
+        }
+    var homeSubnet: String get() = _state.homeSubnet
+        set(v) {
+            _state.homeSubnet = v
+        }
 
     fun getEventMode(event: String): EventMode =
         _state.eventModes[event]?.let { runCatching { EventMode.valueOf(it) }.getOrNull() } ?: EventMode.OFF
 
-    fun setEventMode(event: String, mode: EventMode) { _state.eventModes[event] = mode.name }
+    fun setEventMode(
+        event: String,
+        mode: EventMode,
+    ) {
+        _state.eventModes[event] = mode.name
+    }
 
     fun allEventsOff(): Boolean = ALL_EVENTS.all { getEventMode(it) == EventMode.OFF }
 
     companion object {
         fun getInstance(): PluginSettings = service()
 
-        val ALL_EVENTS = listOf(
-            "devevents.task.started", "devevents.task.succeeded", "devevents.task.failed",
-            "devevents.test.started", "devevents.test.succeeded", "devevents.test.failed",
-            "devevents.file.saved", "devevents.file.opened", "devevents.file.closed",
-            "devevents.breakpoint.hit",
-            "devevents.vcs.committed", "devevents.vcs.branch.changed",
-            "devevents.editor.focus.gained", "devevents.editor.focus.lost",
-            "devevents.keypresses"
-        )
+        val ALL_EVENTS =
+            listOf(
+                "devevents.task.started",
+                "devevents.task.succeeded",
+                "devevents.task.failed",
+                "devevents.test.started",
+                "devevents.test.succeeded",
+                "devevents.test.failed",
+                "devevents.file.saved",
+                "devevents.file.opened",
+                "devevents.file.closed",
+                "devevents.breakpoint.hit",
+                "devevents.vcs.committed",
+                "devevents.vcs.branch.changed",
+                "devevents.editor.focus.gained",
+                "devevents.editor.focus.lost",
+                "devevents.keypresses",
+            )
 
         // Events with no sensitive fields — REDACTED is identical to FULL for these.
-        val FULL_ONLY_EVENTS = setOf(
-            "devevents.vcs.committed", "devevents.test.started",
-            "devevents.editor.focus.gained", "devevents.editor.focus.lost"
-        )
+        val FULL_ONLY_EVENTS =
+            setOf(
+                "devevents.vcs.committed",
+                "devevents.test.started",
+                "devevents.editor.focus.gained",
+                "devevents.editor.focus.lost",
+            )
     }
 }

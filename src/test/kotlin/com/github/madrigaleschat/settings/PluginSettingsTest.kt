@@ -1,11 +1,14 @@
 package com.github.madrigaleschat.settings
 
 import com.github.madrigaleschat.model.EventMode
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PluginSettingsTest {
-
     private fun freshState() = PluginSettings.State()
 
     @Test
@@ -68,7 +71,7 @@ class PluginSettingsTest {
     fun `FULL_ONLY_EVENTS contains exactly the events with no sensitive fields`() {
         assertEquals(
             setOf("devevents.vcs.committed", "devevents.test.started", "devevents.editor.focus.gained", "devevents.editor.focus.lost"),
-            PluginSettings.FULL_ONLY_EVENTS
+            PluginSettings.FULL_ONLY_EVENTS,
         )
     }
 }

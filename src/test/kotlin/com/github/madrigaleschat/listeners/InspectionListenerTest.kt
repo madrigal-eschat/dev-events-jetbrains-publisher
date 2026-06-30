@@ -1,11 +1,14 @@
 package com.github.madrigaleschat.listeners
 
 import com.github.madrigaleschat.model.EventMode
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class InspectionListenerTest {
-
     @Test
     fun `buildInspectionData FULL includes real counts`() {
         val data = buildInspectionData(EventMode.FULL, errorCount = 3, warningCount = 14)

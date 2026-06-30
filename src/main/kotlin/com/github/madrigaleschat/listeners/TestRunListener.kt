@@ -6,7 +6,13 @@ import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener
 import com.intellij.execution.testframework.sm.runner.SMTestProxy
 
-fun buildTestData(mode: EventMode, durationMs: Long, passed: Int, failed: Int, skipped: Int): Map<String, Any?> =
+fun buildTestData(
+    mode: EventMode,
+    durationMs: Long,
+    passed: Int,
+    failed: Int,
+    skipped: Int,
+): Map<String, Any?> =
     if (mode == EventMode.FULL) {
         mapOf("duration_ms" to durationMs, "passed" to passed, "failed" to failed, "skipped" to skipped)
     } else {
@@ -17,12 +23,11 @@ fun buildTestData(mode: EventMode, durationMs: Long, passed: Int, failed: Int, s
             "duration_ms" to durationMs,
             "passed" to normPassed,
             "failed" to normFailed,
-            "skipped" to normSkipped
+            "skipped" to normSkipped,
         )
     }
 
 class TestRunListener : SMTRunnerEventsListener {
-
     override fun onTestingStarted(rootTestProxy: SMTestProxy.SMRootTestProxy) {
         val settings = PluginSettings.getInstance()
         val mode = settings.getEventMode("devevents.test.started")
@@ -41,21 +46,37 @@ class TestRunListener : SMTRunnerEventsListener {
         val mode = settings.getEventMode(eventName)
         if (mode == EventMode.OFF) return
         MqttPublisherService.getInstance().publish(
-            eventName, buildTestData(mode, durationMs, passed, failed, skipped)
+            eventName,
+            buildTestData(mode, durationMs, passed, failed, skipped),
         )
     }
 
     override fun onTestsCountInSuite(count: Int) {}
+
     override fun onTestStarted(test: SMTestProxy) {}
+
     override fun onTestFailed(test: SMTestProxy) {}
+
     override fun onTestIgnored(test: SMTestProxy) {}
+
     override fun onTestFinished(test: SMTestProxy) {}
+
     override fun onSuiteStarted(suite: SMTestProxy) {}
+
     override fun onSuiteFinished(suite: SMTestProxy) {}
-    override fun onCustomProgressTestsCategory(categoryName: String?, count: Int) {}
+
+    override fun onCustomProgressTestsCategory(
+        categoryName: String?,
+        count: Int,
+    ) {}
+
     override fun onCustomProgressTestStarted() {}
+
     override fun onCustomProgressTestFailed() {}
+
     override fun onCustomProgressTestFinished() {}
+
     override fun onSuiteTreeNodeAdded(testProxy: SMTestProxy) {}
+
     override fun onSuiteTreeStarted(testProxy: SMTestProxy) {}
 }

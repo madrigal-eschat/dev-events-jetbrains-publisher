@@ -1,13 +1,19 @@
 package com.github.madrigaleschat.mqtt
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class EnvelopeTest {
-
-    private fun env(type: String = "devevents.file.saved", data: Map<String, Any?> = emptyMap(),
-                    source: String = "editor/jeff/jetbrains/intellij-idea", subject: String? = null) =
-        buildEnvelope(type, data, source, subject)
+    private fun env(
+        type: String = "devevents.file.saved",
+        data: Map<String, Any?> = emptyMap(),
+        source: String = "editor/jeff/jetbrains/intellij-idea",
+        subject: String? = null,
+    ) = buildEnvelope(type, data, source, subject)
 
     @Test
     fun `buildEnvelope sets specversion to 1_0`() {
@@ -72,6 +78,7 @@ class EnvelopeTest {
     @Test
     fun `filterNulls removes nulls from nested map`() {
         val result = mapOf("data" to mapOf("x" to null, "y" to 1)).filterNulls()
+
         @Suppress("UNCHECKED_CAST")
         val nested = (result["data"] as Map<String, Any?>)
         assertFalse(nested.containsKey("x"))

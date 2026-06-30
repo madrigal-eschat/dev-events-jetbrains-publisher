@@ -1,16 +1,21 @@
 package com.github.madrigaleschat.mqtt
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.net.Inet4Address
 import java.net.InetAddress
 
 class NetworkCheckTest {
-
     private fun addr(ip: String) = InetAddress.getByName(ip) as Inet4Address
 
-    private fun check(subnet: String, vararg ips: String) =
-        isOnHomeNetwork(subnet, ips.map { addr(it) }.asSequence())
+    private fun check(
+        subnet: String,
+        vararg ips: String,
+    ) = isOnHomeNetwork(subnet, ips.map { addr(it) }.asSequence())
 
     @Test
     fun `empty subnet always returns true`() {

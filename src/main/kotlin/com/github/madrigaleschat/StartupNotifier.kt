@@ -9,14 +9,14 @@ import com.intellij.openapi.startup.ProjectActivity
 class StartupNotifier : ProjectActivity {
     override suspend fun execute(project: Project) {
         if (PluginSettings.getInstance().allEventsOff()) {
-            NotificationGroupManager.getInstance()
+            NotificationGroupManager
+                .getInstance()
                 .getNotificationGroup("IDE Events Publisher")
                 .createNotification(
                     "IDE Events publisher is not configured",
                     "Open Settings > Tools > IDE Events to enable event publishing.",
-                    NotificationType.WARNING
-                )
-                .notify(project)
+                    NotificationType.WARNING,
+                ).notify(project)
         }
     }
 }

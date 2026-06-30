@@ -4,24 +4,30 @@ import com.github.madrigaleschat.model.EventMode
 import com.github.madrigaleschat.mqtt.MqttPublisherService
 import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.codeInsight.daemon.impl.HighlightInfo
+import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.editor.impl.DocumentMarkupModel
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.project.Project
-import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.codeInsight.daemon.impl.HighlightInfo
-import com.intellij.openapi.editor.impl.DocumentMarkupModel
 
-fun buildInspectionData(mode: EventMode, errorCount: Int, warningCount: Int): Map<String, Any?> =
+fun buildInspectionData(
+    mode: EventMode,
+    errorCount: Int,
+    warningCount: Int,
+): Map<String, Any?> =
     if (mode == EventMode.FULL) {
         mapOf("error_count" to errorCount, "warning_count" to warningCount)
     } else {
         mapOf(
             "error_count" to if (errorCount > 0) 1 else 0,
-            "warning_count" to if (warningCount > 0) 1 else 0
+            "warning_count" to if (warningCount > 0) 1 else 0,
         )
     }
 
-class InspectionListener(private val project: Project) : DaemonCodeAnalyzer.DaemonListener {
+class InspectionListener(
+    private val project: Project,
+) : DaemonCodeAnalyzer.DaemonListener {
     override fun daemonFinished(fileEditors: Collection<FileEditor>) {
         val settings = PluginSettings.getInstance()
         val mode = settings.getEventMode("inspection_complete")
@@ -46,7 +52,7 @@ class InspectionListener(private val project: Project) : DaemonCodeAnalyzer.Daem
         MqttPublisherService.getInstance().publish(
             "inspection_complete",
             buildInspectionData(mode, errorCount, warningCount),
-            project
+            project,
         )
     }
 }

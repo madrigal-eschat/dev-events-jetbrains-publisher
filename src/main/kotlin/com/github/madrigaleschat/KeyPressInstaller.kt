@@ -9,7 +9,7 @@ class KeyPressInstaller : ProjectActivity {
     override suspend fun execute(project: Project) {
         val typedAction = EditorActionManager.getInstance().typedAction
         val listener = KeyPressListener.getInstance()
-        if (typedAction.handler === listener) return  // already installed (multiple projects)
+        if (typedAction.handler === listener) return // already installed (multiple projects)
         listener.install(typedAction.handler)
         typedAction.setupHandler(listener)
     }

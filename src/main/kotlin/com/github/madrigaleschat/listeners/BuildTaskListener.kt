@@ -8,17 +8,22 @@ import com.intellij.task.ProjectTaskListener
 import com.intellij.task.ProjectTaskManager
 import java.util.concurrent.ConcurrentHashMap
 
-fun buildTaskStartData(mode: EventMode, name: String?): Map<String, Any?> =
-    mapOf("name" to if (mode == EventMode.FULL) name else null)
+fun buildTaskStartData(
+    mode: EventMode,
+    name: String?,
+): Map<String, Any?> = mapOf("name" to if (mode == EventMode.FULL) name else null)
 
-fun buildTaskData(mode: EventMode, name: String?, durationMs: Long?): Map<String, Any?> =
+fun buildTaskData(
+    mode: EventMode,
+    name: String?,
+    durationMs: Long?,
+): Map<String, Any?> =
     mapOf(
         "duration_ms" to durationMs,
-        "name" to if (mode == EventMode.FULL) name else null
+        "name" to if (mode == EventMode.FULL) name else null,
     )
 
 class BuildTaskListener : ProjectTaskListener {
-
     private val startTimes = ConcurrentHashMap<Int, Long>()
 
     override fun started(context: ProjectTaskContext) {
@@ -30,7 +35,8 @@ class BuildTaskListener : ProjectTaskListener {
 
         val name = context.runConfiguration?.name
         MqttPublisherService.getInstance().publish(
-            "devevents.task.started", buildTaskStartData(mode, name)
+            "devevents.task.started",
+            buildTaskStartData(mode, name),
         )
     }
 
@@ -46,7 +52,8 @@ class BuildTaskListener : ProjectTaskListener {
 
         val name = context.runConfiguration?.name
         MqttPublisherService.getInstance().publish(
-            eventName, buildTaskData(mode, name, durationMs)
+            eventName,
+            buildTaskData(mode, name, durationMs),
         )
     }
 }

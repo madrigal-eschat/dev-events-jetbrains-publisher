@@ -1,11 +1,14 @@
 package com.github.madrigaleschat.listeners
 
 import com.github.madrigaleschat.model.EventMode
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FileListenerTest {
-
     @Test
     fun `buildFileData FULL includes file path`() {
         val data = buildFileData(EventMode.FULL, "/src/main.kt")

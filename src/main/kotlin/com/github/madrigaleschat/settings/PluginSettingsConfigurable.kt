@@ -16,8 +16,7 @@ class PluginSettingsConfigurable : Configurable {
         return p.panel
     }
 
-    override fun isModified(): Boolean =
-        settingsPanel?.isModified(PluginSettings.getInstance()) ?: false
+    override fun isModified(): Boolean = settingsPanel?.isModified(PluginSettings.getInstance()) ?: false
 
     override fun apply() {
         settingsPanel?.apply(PluginSettings.getInstance())

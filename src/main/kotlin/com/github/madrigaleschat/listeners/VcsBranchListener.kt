@@ -5,8 +5,10 @@ import com.github.madrigaleschat.mqtt.MqttPublisherService
 import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.openapi.vcs.BranchChangeListener
 
-fun buildBranchData(mode: EventMode, branch: String?): Map<String, Any?> =
-    mapOf("branch" to if (mode == EventMode.FULL) branch else null)
+fun buildBranchData(
+    mode: EventMode,
+    branch: String?,
+): Map<String, Any?> = mapOf("branch" to if (mode == EventMode.FULL) branch else null)
 
 class VcsBranchListener : BranchChangeListener {
     override fun branchWillChange(branchName: String) {}
@@ -16,7 +18,8 @@ class VcsBranchListener : BranchChangeListener {
         val mode = settings.getEventMode("devevents.vcs.branch.changed")
         if (mode == EventMode.OFF) return
         MqttPublisherService.getInstance().publish(
-            "devevents.vcs.branch.changed", buildBranchData(mode, branchName)
+            "devevents.vcs.branch.changed",
+            buildBranchData(mode, branchName),
         )
     }
 }

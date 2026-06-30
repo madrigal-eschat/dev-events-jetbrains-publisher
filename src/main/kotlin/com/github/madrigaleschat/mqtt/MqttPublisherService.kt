@@ -21,20 +21,23 @@ fun buildEnvelope(
     type: String,
     data: Map<String, Any?>,
     source: String,
-    subject: String?
-): Map<String, Any?> = mapOf(
-    "specversion" to "1.0",
-    "id" to UUID.randomUUID().toString(),
-    "type" to type,
-    "source" to source,
-    "sourcetype" to "editor",
-    "subject" to subject,
-    "time" to Instant.now().toString(),
-    "data" to data
-)
+    subject: String?,
+): Map<String, Any?> =
+    mapOf(
+        "specversion" to "1.0",
+        "id" to UUID.randomUUID().toString(),
+        "type" to type,
+        "source" to source,
+        "sourcetype" to "editor",
+        "subject" to subject,
+        "time" to Instant.now().toString(),
+        "data" to data,
+    )
 
 fun allLocalIpv4Addresses(): Sequence<Inet4Address> =
-    NetworkInterface.getNetworkInterfaces()?.asSequence()
+    NetworkInterface
+        .getNetworkInterfaces()
+        ?.asSequence()
         ?.flatMap { it.inetAddresses.asSequence() }
         ?.filterIsInstance<Inet4Address>()
         ?: emptySequence()
@@ -43,16 +46,17 @@ private fun ByteArray.toInt32() = fold(0) { acc, b -> (acc shl 8) or (b.toInt() 
 
 fun isOnHomeNetwork(
     subnet: String,
-    localAddresses: Sequence<Inet4Address> = allLocalIpv4Addresses()
+    localAddresses: Sequence<Inet4Address> = allLocalIpv4Addresses(),
 ): Boolean {
     if (subnet.isBlank()) return true
     val slash = subnet.indexOf('/')
     if (slash == -1) return false
     val prefixLen = subnet.substring(slash + 1).toIntOrNull() ?: return false
     if (prefixLen !in 0..32) return false
-    val networkBytes = runCatching {
-        InetAddress.getByName(subnet.substring(0, slash))
-    }.getOrNull()?.takeIf { it is Inet4Address }?.address ?: return false
+    val networkBytes =
+        runCatching {
+            InetAddress.getByName(subnet.substring(0, slash))
+        }.getOrNull()?.takeIf { it is Inet4Address }?.address ?: return false
     val mask = if (prefixLen == 0) 0 else (-1 shl (32 - prefixLen))
     val networkInt = networkBytes.toInt32() and mask
     return localAddresses.any { addr -> addr.address.toInt32() and mask == networkInt }
@@ -66,7 +70,6 @@ fun Map<String, Any?>.filterNulls(): Map<String, Any?> =
         }
 
 class MqttPublisherService {
-
     @Volatile private var client: MqttAsyncClient? = null
 
     private val hostname: String by lazy {
@@ -75,7 +78,11 @@ class MqttPublisherService {
 
     private val ideSpecific: String by lazy {
         runCatching {
-            ApplicationNamesInfo.getInstance().productName.lowercase().replace(" ", "-")
+            ApplicationNamesInfo
+                .getInstance()
+                .productName
+                .lowercase()
+                .replace(" ", "-")
         }.getOrDefault("intellij-idea")
     }
 
@@ -93,14 +100,15 @@ class MqttPublisherService {
         runCatching { client?.disconnect() }
         val newClient = MqttAsyncClient(settings.brokerUrl, settings.clientId, MemoryPersistence())
         val mqttPassword = getPassword()
-        val opts = MqttConnectOptions().apply {
-            isAutomaticReconnect = true
-            isCleanSession = false
-            if (settings.username.isNotBlank()) {
-                userName = settings.username
-                password = mqttPassword.toCharArray()
+        val opts =
+            MqttConnectOptions().apply {
+                isAutomaticReconnect = true
+                isCleanSession = false
+                if (settings.username.isNotBlank()) {
+                    userName = settings.username
+                    password = mqttPassword.toCharArray()
+                }
             }
-        }
         runCatching { newClient.connect(opts) }
         client = newClient
     }
@@ -120,7 +128,11 @@ class MqttPublisherService {
         }
     }
 
-    fun publish(eventName: String, data: Map<String, Any?>, project: Project? = null) {
+    fun publish(
+        eventName: String,
+        data: Map<String, Any?>,
+        project: Project? = null,
+    ) {
         val c = client ?: return
         if (!c.isConnected) return
         val settings = PluginSettings.getInstance()
@@ -129,17 +141,24 @@ class MqttPublisherService {
         val host = if (settings.includeHost) hostname.substringBefore('.') else "redacted"
         val source = "editor/$host/jetbrains/$ideSpecific"
 
-        val subject: String? = if (settings.includeProject && project != null) {
-            val base = project.basePath ?: project.name
-            val home = System.getProperty("user.home") ?: ""
-            if (home.isNotEmpty() && base.startsWith(home)) "~" + base.substring(home.length) else base
-        } else null
+        val subject: String? =
+            if (settings.includeProject && project != null) {
+                val base = project.basePath ?: project.name
+                val home = System.getProperty("user.home") ?: ""
+                if (home.isNotEmpty() && base.startsWith(home)) "~" + base.substring(home.length) else base
+            } else {
+                null
+            }
 
         val envelope = buildEnvelope(eventName, data, source, subject).filterNulls()
         val json = gson.toJson(envelope)
 
-        val topic = if (settings.includeHost) "${settings.topicPrefix}/${hostname.substringBefore('.')}"
-                    else settings.topicPrefix
+        val topic =
+            if (settings.includeHost) {
+                "${settings.topicPrefix}/${hostname.substringBefore('.')}"
+            } else {
+                settings.topicPrefix
+            }
 
         runCatching {
             c.publish(topic, MqttMessage(json.toByteArray()).apply { qos = 0 })
