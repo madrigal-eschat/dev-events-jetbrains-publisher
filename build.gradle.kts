@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.changelog")
     id("org.jetbrains.intellij.platform")
+    id("org.jetbrains.kotlinx.kover") version "0.9.1"
 }
 
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
