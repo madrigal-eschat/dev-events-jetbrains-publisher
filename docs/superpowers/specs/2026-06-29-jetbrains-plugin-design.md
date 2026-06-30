@@ -12,7 +12,7 @@ A JetBrains IDE plugin that listens for IDE events and publishes them as JSON ov
 ## Package Structure
 
 ```
-com.github.spacepilothannah
+com.github.madrigaleschat
 ├── settings/
 │   ├── PluginSettings              PersistentStateComponent (application service)
 │   ├── PluginSettingsConfigurable  IDE Settings entry point (Settings > Tools > IDE Events)
@@ -42,7 +42,7 @@ com.github.spacepilothannah
 | `includeProject` | `Boolean` | `true` | Controls envelope `source.project` |
 | `eventModes` | `Map<String, EventMode>` | all keys → `OFF` | Key = event name e.g. `"file_save"` |
 
-**Password** is stored and retrieved via JetBrains `PasswordSafe` (`CredentialAttributes` keyed on plugin ID `com.github.spacepilothannah.IDEEventsToWebhook`). Never written to state storage.
+**Password** is stored and retrieved via JetBrains `PasswordSafe` (`CredentialAttributes` keyed on plugin ID `com.github.madrigaleschat.DevEventsPublisher`). Never written to state storage.
 
 ### Topic resolution
 

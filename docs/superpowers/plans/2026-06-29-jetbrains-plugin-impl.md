@@ -10,15 +10,15 @@
 
 ## Global Constraints
 
-- Package root: `com.github.spacepilothannah`
-- Source layout: `src/main/kotlin/com/github/spacepilothannah/<subpackage>/ClassName.kt`
-- Test layout: `src/test/kotlin/com/github/spacepilothannah/<subpackage>/ClassNameTest.kt`
+- Package root: `com.github.madrigaleschat`
+- Source layout: `src/main/kotlin/com/github/madrigaleschat/<subpackage>/ClassName.kt`
+- Test layout: `src/test/kotlin/com/github/madrigaleschat/<subpackage>/ClassNameTest.kt`
 - Message format contract: `../../MESSAGE-FORMAT.md` — topic `{topicPrefix}/{hostname}` or `{topicPrefix}`; envelope fields `version`, `event`, `timestamp`, `source`, `data`
 - MQTT: QoS 0, fire-and-forget, fail silently when broker unreachable
 - Gson: never serialize null map values — filter nulls before serialisation
 - Event mode enum: `OFF`, `REDACTED`, `FULL` — all events default to `OFF`
-- `plugin.xml` plugin ID: `com.github.spacepilothannah.IDEEventsToWebhook`
-- PasswordSafe credential key: `com.github.spacepilothannah.IDEEventsToWebhook`
+- `plugin.xml` plugin ID: `com.github.madrigaleschat.DevEventsPublisher`
+- PasswordSafe credential key: `com.github.madrigaleschat.DevEventsPublisher`
 - All events: `task_start`, `task_success`, `task_fail`, `test_start`, `test_success`, `test_fail`, `file_save`, `file_open`, `file_close`, `breakpoint_hit`, `vcs_commit`, `vcs_push`, `vcs_branch_change`, `editor_focus_gained`, `editor_focus_lost`, `inspection_complete`, `key_presses`
 
 ---
@@ -30,11 +30,11 @@
 - Delete: `src/main/kotlin/MyMessageBundle.kt`
 - Delete: `src/main/resources/messages/MyMessageBundle.properties`
 - Modify: `build.gradle.kts`
-- Create: `src/main/kotlin/com/github/spacepilothannah/model/EventMode.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/model/EventMode.kt`
 - Modify: `src/main/resources/META-INF/plugin.xml`
 
 **Interfaces:**
-- Produces: `EventMode` enum with values `OFF`, `REDACTED`, `FULL` in package `com.github.spacepilothannah.model`
+- Produces: `EventMode` enum with values `OFF`, `REDACTED`, `FULL` in package `com.github.madrigaleschat.model`
 
 - [ ] **Step 1: Delete placeholder source files**
 
@@ -71,7 +71,7 @@ dependencies {
 - [ ] **Step 3: Create `EventMode.kt`**
 
 ```kotlin
-package com.github.spacepilothannah.model
+package com.github.madrigaleschat.model
 
 enum class EventMode { OFF, REDACTED, FULL }
 ```
@@ -83,9 +83,9 @@ Replace the entire `plugin.xml` content with a clean base (preserving the `<depe
 ```xml
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.spacepilothannah.IDEEventsToWebhook</id>
+    <id>com.github.madrigaleschat.DevEventsPublisher</id>
     <name>IDE Events Publisher</name>
-    <vendor>spacepilothannah</vendor>
+    <vendor>madrigaleschat</vendor>
     <description>Publishes IDE events to an MQTT broker.</description>
 
     <depends>com.intellij.modules.platform</depends>
@@ -106,7 +106,7 @@ Expected: BUILD SUCCESSFUL
 - [ ] **Step 6: Commit**
 
 ```bash
-git add build.gradle.kts src/main/kotlin/com/github/spacepilothannah/model/EventMode.kt src/main/resources/META-INF/plugin.xml
+git add build.gradle.kts src/main/kotlin/com/github/madrigaleschat/model/EventMode.kt src/main/resources/META-INF/plugin.xml
 git commit -m "feat: add Paho dependency, EventMode enum, strip placeholder scaffold"
 ```
 
@@ -115,8 +115,8 @@ git commit -m "feat: add Paho dependency, EventMode enum, strip placeholder scaf
 ### Task 2: PluginSettings — persistent state + password helpers
 
 **Files:**
-- Create: `src/main/kotlin/com/github/spacepilothannah/settings/PluginSettings.kt`
-- Create: `src/test/kotlin/com/github/spacepilothannah/settings/PluginSettingsTest.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/settings/PluginSettings.kt`
+- Create: `src/test/kotlin/com/github/madrigaleschat/settings/PluginSettingsTest.kt`
 - Modify: `src/main/resources/META-INF/plugin.xml`
 
 **Interfaces:**
@@ -131,12 +131,12 @@ git commit -m "feat: add Paho dependency, EventMode enum, strip placeholder scaf
 
 - [ ] **Step 1: Write failing test**
 
-Create `src/test/kotlin/com/github/spacepilothannah/settings/PluginSettingsTest.kt`:
+Create `src/test/kotlin/com/github/madrigaleschat/settings/PluginSettingsTest.kt`:
 
 ```kotlin
-package com.github.spacepilothannah.settings
+package com.github.madrigaleschat.settings
 
-import com.github.spacepilothannah.model.EventMode
+import com.github.madrigaleschat.model.EventMode
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -200,7 +200,7 @@ class PluginSettingsTest {
 - [ ] **Step 2: Run test — expect compilation failure**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.settings.PluginSettingsTest"
+./gradlew test --tests "com.github.madrigaleschat.settings.PluginSettingsTest"
 ```
 
 Expected: compilation error (PluginSettings not found)
@@ -208,9 +208,9 @@ Expected: compilation error (PluginSettings not found)
 - [ ] **Step 3: Create `PluginSettings.kt`**
 
 ```kotlin
-package com.github.spacepilothannah.settings
+package com.github.madrigaleschat.settings
 
-import com.github.spacepilothannah.model.EventMode
+import com.github.madrigaleschat.model.EventMode
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
 import com.intellij.ide.passwordSafe.PasswordSafe
@@ -220,7 +220,7 @@ import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
 import java.util.UUID
 
-private const val CREDENTIAL_SERVICE_NAME = "com.github.spacepilothannah.IDEEventsToWebhook"
+private const val CREDENTIAL_SERVICE_NAME = "com.github.madrigaleschat.DevEventsPublisher"
 
 fun savePassword(password: String) {
     val attrs = CredentialAttributes(CREDENTIAL_SERVICE_NAME)
@@ -231,8 +231,8 @@ fun getPassword(): String =
     PasswordSafe.instance.getPassword(CredentialAttributes(CREDENTIAL_SERVICE_NAME)) ?: ""
 
 @State(
-    name = "com.github.spacepilothannah.IDEEventsToWebhook",
-    storages = [Storage("IDEEventsToWebhook.xml")]
+    name = "com.github.madrigaleschat.DevEventsPublisher",
+    storages = [Storage("DevEventsPublisher.xml")]
 )
 class PluginSettings : PersistentStateComponent<PluginSettings.State> {
 
@@ -287,13 +287,13 @@ Inside the `<extensions defaultExtensionNs="com.intellij">` block, add:
 
 ```xml
 <applicationService
-    serviceImplementation="com.github.spacepilothannah.settings.PluginSettings"/>
+    serviceImplementation="com.github.madrigaleschat.settings.PluginSettings"/>
 ```
 
 - [ ] **Step 5: Run tests — expect PASS**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.settings.PluginSettingsTest"
+./gradlew test --tests "com.github.madrigaleschat.settings.PluginSettingsTest"
 ```
 
 Expected: 9 tests PASS
@@ -301,8 +301,8 @@ Expected: 9 tests PASS
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/main/kotlin/com/github/spacepilothannah/settings/PluginSettings.kt \
-        src/test/kotlin/com/github/spacepilothannah/settings/PluginSettingsTest.kt \
+git add src/main/kotlin/com/github/madrigaleschat/settings/PluginSettings.kt \
+        src/test/kotlin/com/github/madrigaleschat/settings/PluginSettingsTest.kt \
         src/main/resources/META-INF/plugin.xml
 git commit -m "feat(settings): add PluginSettings persistent state and password helpers"
 ```
@@ -312,8 +312,8 @@ git commit -m "feat(settings): add PluginSettings persistent state and password 
 ### Task 3: MqttPublisherService — MQTT client + envelope builder
 
 **Files:**
-- Create: `src/main/kotlin/com/github/spacepilothannah/mqtt/MqttPublisherService.kt`
-- Create: `src/test/kotlin/com/github/spacepilothannah/mqtt/EnvelopeTest.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/mqtt/MqttPublisherService.kt`
+- Create: `src/test/kotlin/com/github/madrigaleschat/mqtt/EnvelopeTest.kt`
 - Modify: `src/main/resources/META-INF/plugin.xml`
 
 **Interfaces:**
@@ -326,10 +326,10 @@ git commit -m "feat(settings): add PluginSettings persistent state and password 
 
 - [ ] **Step 1: Write failing tests**
 
-Create `src/test/kotlin/com/github/spacepilothannah/mqtt/EnvelopeTest.kt`:
+Create `src/test/kotlin/com/github/madrigaleschat/mqtt/EnvelopeTest.kt`:
 
 ```kotlin
-package com.github.spacepilothannah.mqtt
+package com.github.madrigaleschat.mqtt
 
 import org.junit.Assert.*
 import org.junit.Test
@@ -383,7 +383,7 @@ class EnvelopeTest {
 - [ ] **Step 2: Run test — expect compilation failure**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.mqtt.EnvelopeTest"
+./gradlew test --tests "com.github.madrigaleschat.mqtt.EnvelopeTest"
 ```
 
 Expected: compilation error
@@ -391,10 +391,10 @@ Expected: compilation error
 - [ ] **Step 3: Create `MqttPublisherService.kt`**
 
 ```kotlin
-package com.github.spacepilothannah.mqtt
+package com.github.madrigaleschat.mqtt
 
-import com.github.spacepilothannah.settings.PluginSettings
-import com.github.spacepilothannah.settings.getPassword
+import com.github.madrigaleschat.settings.PluginSettings
+import com.github.madrigaleschat.settings.getPassword
 import com.google.gson.GsonBuilder
 import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.application.ApplicationManager
@@ -516,13 +516,13 @@ Add inside `<extensions defaultExtensionNs="com.intellij">`:
 
 ```xml
 <applicationService
-    serviceImplementation="com.github.spacepilothannah.mqtt.MqttPublisherService"/>
+    serviceImplementation="com.github.madrigaleschat.mqtt.MqttPublisherService"/>
 ```
 
 - [ ] **Step 5: Run tests**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.mqtt.EnvelopeTest"
+./gradlew test --tests "com.github.madrigaleschat.mqtt.EnvelopeTest"
 ```
 
 Expected: 6 tests PASS
@@ -530,8 +530,8 @@ Expected: 6 tests PASS
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/main/kotlin/com/github/spacepilothannah/mqtt/MqttPublisherService.kt \
-        src/test/kotlin/com/github/spacepilothannah/mqtt/EnvelopeTest.kt \
+git add src/main/kotlin/com/github/madrigaleschat/mqtt/MqttPublisherService.kt \
+        src/test/kotlin/com/github/madrigaleschat/mqtt/EnvelopeTest.kt \
         src/main/resources/META-INF/plugin.xml
 git commit -m "feat(mqtt): add MqttPublisherService with envelope builder"
 ```
@@ -541,9 +541,9 @@ git commit -m "feat(mqtt): add MqttPublisherService with envelope builder"
 ### Task 4: Settings UI — panel, configurable, startup notification
 
 **Files:**
-- Create: `src/main/kotlin/com/github/spacepilothannah/settings/PluginSettingsPanel.kt`
-- Create: `src/main/kotlin/com/github/spacepilothannah/settings/PluginSettingsConfigurable.kt`
-- Create: `src/main/kotlin/com/github/spacepilothannah/StartupNotifier.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/settings/PluginSettingsPanel.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/settings/PluginSettingsConfigurable.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/StartupNotifier.kt`
 - Modify: `src/main/resources/META-INF/plugin.xml`
 
 **Interfaces:**
@@ -553,9 +553,9 @@ git commit -m "feat(mqtt): add MqttPublisherService with envelope builder"
 - [ ] **Step 1: Create `PluginSettingsPanel.kt`**
 
 ```kotlin
-package com.github.spacepilothannah.settings
+package com.github.madrigaleschat.settings
 
-import com.github.spacepilothannah.model.EventMode
+import com.github.madrigaleschat.model.EventMode
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPasswordField
 import com.intellij.ui.components.JBTextField
@@ -718,9 +718,9 @@ class PluginSettingsPanel {
 - [ ] **Step 2: Create `PluginSettingsConfigurable.kt`**
 
 ```kotlin
-package com.github.spacepilothannah.settings
+package com.github.madrigaleschat.settings
 
-import com.github.spacepilothannah.mqtt.MqttPublisherService
+import com.github.madrigaleschat.mqtt.MqttPublisherService
 import com.intellij.openapi.options.Configurable
 import javax.swing.JComponent
 
@@ -757,9 +757,9 @@ class PluginSettingsConfigurable : Configurable {
 - [ ] **Step 3: Create `StartupNotifier.kt`**
 
 ```kotlin
-package com.github.spacepilothannah
+package com.github.madrigaleschat
 
-import com.github.spacepilothannah.settings.PluginSettings
+import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.Project
@@ -787,7 +787,7 @@ Add inside `<extensions defaultExtensionNs="com.intellij">`:
 
 ```xml
 <applicationConfigurable
-    instance="com.github.spacepilothannah.settings.PluginSettingsConfigurable"
+    instance="com.github.madrigaleschat.settings.PluginSettingsConfigurable"
     displayName="IDE Events"
     parentId="tools"/>
 
@@ -796,7 +796,7 @@ Add inside `<extensions defaultExtensionNs="com.intellij">`:
                    isLogByDefault="true"/>
 
 <postStartupActivity
-    implementation="com.github.spacepilothannah.StartupNotifier"/>
+    implementation="com.github.madrigaleschat.StartupNotifier"/>
 ```
 
 - [ ] **Step 5: Compile**
@@ -823,9 +823,9 @@ Open any project → Settings > Tools > IDE Events → verify:
 - [ ] **Step 7: Commit**
 
 ```bash
-git add src/main/kotlin/com/github/spacepilothannah/settings/PluginSettingsPanel.kt \
-        src/main/kotlin/com/github/spacepilothannah/settings/PluginSettingsConfigurable.kt \
-        src/main/kotlin/com/github/spacepilothannah/StartupNotifier.kt \
+git add src/main/kotlin/com/github/madrigaleschat/settings/PluginSettingsPanel.kt \
+        src/main/kotlin/com/github/madrigaleschat/settings/PluginSettingsConfigurable.kt \
+        src/main/kotlin/com/github/madrigaleschat/StartupNotifier.kt \
         src/main/resources/META-INF/plugin.xml
 git commit -m "feat(settings): add settings UI, configurable, and startup notification"
 ```
@@ -835,9 +835,9 @@ git commit -m "feat(settings): add settings UI, configurable, and startup notifi
 ### Task 5: File listeners — save, open, close
 
 **Files:**
-- Create: `src/main/kotlin/com/github/spacepilothannah/listeners/FileSaveListener.kt`
-- Create: `src/main/kotlin/com/github/spacepilothannah/listeners/FileEditorListener.kt`
-- Create: `src/test/kotlin/com/github/spacepilothannah/listeners/FileListenerTest.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/listeners/FileSaveListener.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/listeners/FileEditorListener.kt`
+- Create: `src/test/kotlin/com/github/madrigaleschat/listeners/FileListenerTest.kt`
 - Modify: `src/main/resources/META-INF/plugin.xml`
 
 **Interfaces:**
@@ -846,12 +846,12 @@ git commit -m "feat(settings): add settings UI, configurable, and startup notifi
 
 - [ ] **Step 1: Write failing tests**
 
-Create `src/test/kotlin/com/github/spacepilothannah/listeners/FileListenerTest.kt`:
+Create `src/test/kotlin/com/github/madrigaleschat/listeners/FileListenerTest.kt`:
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.model.EventMode
+import com.github.madrigaleschat.model.EventMode
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -880,7 +880,7 @@ class FileListenerTest {
 - [ ] **Step 2: Run test — expect compilation failure**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.listeners.FileListenerTest"
+./gradlew test --tests "com.github.madrigaleschat.listeners.FileListenerTest"
 ```
 
 Expected: compilation error
@@ -888,11 +888,11 @@ Expected: compilation error
 - [ ] **Step 3: Create `FileSaveListener.kt`**
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.model.EventMode
-import com.github.spacepilothannah.mqtt.MqttPublisherService
-import com.github.spacepilothannah.settings.PluginSettings
+import com.github.madrigaleschat.model.EventMode
+import com.github.madrigaleschat.mqtt.MqttPublisherService
+import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileDocumentManagerListener
@@ -923,10 +923,10 @@ class FileSaveListener : FileDocumentManagerListener {
 - [ ] **Step 4: Create `FileEditorListener.kt`**
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.mqtt.MqttPublisherService
-import com.github.spacepilothannah.settings.PluginSettings
+import com.github.madrigaleschat.mqtt.MqttPublisherService
+import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.vfs.VirtualFile
@@ -958,9 +958,9 @@ Add a `<listeners>` block after `<extensions>`:
 
 ```xml
 <listeners>
-    <listener class="com.github.spacepilothannah.listeners.FileSaveListener"
+    <listener class="com.github.madrigaleschat.listeners.FileSaveListener"
               topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
-    <listener class="com.github.spacepilothannah.listeners.FileEditorListener"
+    <listener class="com.github.madrigaleschat.listeners.FileEditorListener"
               topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
 </listeners>
 ```
@@ -968,7 +968,7 @@ Add a `<listeners>` block after `<extensions>`:
 - [ ] **Step 6: Run tests**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.listeners.FileListenerTest"
+./gradlew test --tests "com.github.madrigaleschat.listeners.FileListenerTest"
 ```
 
 Expected: 3 tests PASS
@@ -976,9 +976,9 @@ Expected: 3 tests PASS
 - [ ] **Step 7: Commit**
 
 ```bash
-git add src/main/kotlin/com/github/spacepilothannah/listeners/FileSaveListener.kt \
-        src/main/kotlin/com/github/spacepilothannah/listeners/FileEditorListener.kt \
-        src/test/kotlin/com/github/spacepilothannah/listeners/FileListenerTest.kt \
+git add src/main/kotlin/com/github/madrigaleschat/listeners/FileSaveListener.kt \
+        src/main/kotlin/com/github/madrigaleschat/listeners/FileEditorListener.kt \
+        src/test/kotlin/com/github/madrigaleschat/listeners/FileListenerTest.kt \
         src/main/resources/META-INF/plugin.xml
 git commit -m "feat(listeners): add file save, open, close event listeners"
 ```
@@ -988,9 +988,9 @@ git commit -m "feat(listeners): add file save, open, close event listeners"
 ### Task 6: Build and test listeners
 
 **Files:**
-- Create: `src/main/kotlin/com/github/spacepilothannah/listeners/BuildTaskListener.kt`
-- Create: `src/main/kotlin/com/github/spacepilothannah/listeners/TestRunListener.kt`
-- Create: `src/test/kotlin/com/github/spacepilothannah/listeners/BuildListenerTest.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/listeners/BuildTaskListener.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/listeners/TestRunListener.kt`
+- Create: `src/test/kotlin/com/github/madrigaleschat/listeners/BuildListenerTest.kt`
 - Modify: `src/main/resources/META-INF/plugin.xml`
 
 **Interfaces:**
@@ -999,12 +999,12 @@ git commit -m "feat(listeners): add file save, open, close event listeners"
 
 - [ ] **Step 1: Write failing tests**
 
-Create `src/test/kotlin/com/github/spacepilothannah/listeners/BuildListenerTest.kt`:
+Create `src/test/kotlin/com/github/madrigaleschat/listeners/BuildListenerTest.kt`:
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.model.EventMode
+import com.github.madrigaleschat.model.EventMode
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -1066,7 +1066,7 @@ class BuildListenerTest {
 - [ ] **Step 2: Run test — expect compilation failure**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.listeners.BuildListenerTest"
+./gradlew test --tests "com.github.madrigaleschat.listeners.BuildListenerTest"
 ```
 
 Expected: compilation error
@@ -1074,11 +1074,11 @@ Expected: compilation error
 - [ ] **Step 3: Create `BuildTaskListener.kt`**
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.model.EventMode
-import com.github.spacepilothannah.mqtt.MqttPublisherService
-import com.github.spacepilothannah.settings.PluginSettings
+import com.github.madrigaleschat.model.EventMode
+import com.github.madrigaleschat.mqtt.MqttPublisherService
+import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.task.ProjectTaskContext
 import com.intellij.task.ProjectTaskListener
 import com.intellij.task.ProjectTaskManager
@@ -1130,11 +1130,11 @@ class BuildTaskListener : ProjectTaskListener {
 - [ ] **Step 4: Create `TestRunListener.kt`**
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.model.EventMode
-import com.github.spacepilothannah.mqtt.MqttPublisherService
-import com.github.spacepilothannah.settings.PluginSettings
+import com.github.madrigaleschat.model.EventMode
+import com.github.madrigaleschat.mqtt.MqttPublisherService
+import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener
 import com.intellij.execution.testframework.sm.runner.SMTestProxy
 
@@ -1194,16 +1194,16 @@ class TestRunListener : SMTRunnerEventsListener {
 Inside the existing `<listeners>` block, add:
 
 ```xml
-<listener class="com.github.spacepilothannah.listeners.BuildTaskListener"
+<listener class="com.github.madrigaleschat.listeners.BuildTaskListener"
           topic="com.intellij.task.ProjectTaskListener"/>
-<listener class="com.github.spacepilothannah.listeners.TestRunListener"
+<listener class="com.github.madrigaleschat.listeners.TestRunListener"
           topic="com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener"/>
 ```
 
 - [ ] **Step 6: Run tests**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.listeners.BuildListenerTest"
+./gradlew test --tests "com.github.madrigaleschat.listeners.BuildListenerTest"
 ```
 
 Expected: 7 tests PASS
@@ -1211,9 +1211,9 @@ Expected: 7 tests PASS
 - [ ] **Step 7: Commit**
 
 ```bash
-git add src/main/kotlin/com/github/spacepilothannah/listeners/BuildTaskListener.kt \
-        src/main/kotlin/com/github/spacepilothannah/listeners/TestRunListener.kt \
-        src/test/kotlin/com/github/spacepilothannah/listeners/BuildListenerTest.kt \
+git add src/main/kotlin/com/github/madrigaleschat/listeners/BuildTaskListener.kt \
+        src/main/kotlin/com/github/madrigaleschat/listeners/TestRunListener.kt \
+        src/test/kotlin/com/github/madrigaleschat/listeners/BuildListenerTest.kt \
         src/main/resources/META-INF/plugin.xml
 git commit -m "feat(listeners): add build task and test run event listeners"
 ```
@@ -1223,10 +1223,10 @@ git commit -m "feat(listeners): add build task and test run event listeners"
 ### Task 7: VCS listeners — commit, push, branch change
 
 **Files:**
-- Create: `src/main/kotlin/com/github/spacepilothannah/listeners/VcsCommitListener.kt`
-- Create: `src/main/kotlin/com/github/spacepilothannah/listeners/VcsPushListener.kt`
-- Create: `src/main/kotlin/com/github/spacepilothannah/listeners/VcsBranchListener.kt`
-- Create: `src/test/kotlin/com/github/spacepilothannah/listeners/VcsListenerTest.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/listeners/VcsCommitListener.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/listeners/VcsPushListener.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/listeners/VcsBranchListener.kt`
+- Create: `src/test/kotlin/com/github/madrigaleschat/listeners/VcsListenerTest.kt`
 - Modify: `src/main/resources/META-INF/plugin.xml`
 
 **Interfaces:**
@@ -1236,12 +1236,12 @@ git commit -m "feat(listeners): add build task and test run event listeners"
 
 - [ ] **Step 1: Write failing tests**
 
-Create `src/test/kotlin/com/github/spacepilothannah/listeners/VcsListenerTest.kt`:
+Create `src/test/kotlin/com/github/madrigaleschat/listeners/VcsListenerTest.kt`:
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.model.EventMode
+import com.github.madrigaleschat.model.EventMode
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -1264,7 +1264,7 @@ class VcsListenerTest {
 - [ ] **Step 2: Run test — expect compilation failure**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.listeners.VcsListenerTest"
+./gradlew test --tests "com.github.madrigaleschat.listeners.VcsListenerTest"
 ```
 
 Expected: compilation error
@@ -1274,10 +1274,10 @@ Expected: compilation error
 VCS commit detection uses `CheckinHandlerFactory` declared as an extension. However, for a message-bus listener approach, use `com.intellij.openapi.vcs.impl.VcsInitObject` or `com.intellij.vcs.commit.CommitSessionCollector`. The most reliable approach is a `CheckinHandlerFactory`:
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.mqtt.MqttPublisherService
-import com.github.spacepilothannah.settings.PluginSettings
+import com.github.madrigaleschat.mqtt.MqttPublisherService
+import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.openapi.vcs.CheckinProjectPanel
 import com.intellij.openapi.vcs.changes.CommitContext
 import com.intellij.openapi.vcs.checkin.CheckinHandler
@@ -1302,11 +1302,11 @@ Register as an extension (not a listener) — update Step 5 accordingly.
 - [ ] **Step 4: Create `VcsBranchListener.kt`**
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.model.EventMode
-import com.github.spacepilothannah.mqtt.MqttPublisherService
-import com.github.spacepilothannah.settings.PluginSettings
+import com.github.madrigaleschat.model.EventMode
+import com.github.madrigaleschat.mqtt.MqttPublisherService
+import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.openapi.vcs.BranchChangeListener
 
 fun buildBranchData(mode: EventMode, branch: String?): Map<String, Any?> =
@@ -1331,10 +1331,10 @@ class VcsBranchListener : BranchChangeListener {
 > **Verify:** Before registering, confirm the push listener topic at https://jb.gg/ipe — search for "push" under `git4idea`. The likely interface is `git4idea.push.GitPushResultNotification` or a `VcsPushListener` topic. If `git4idea` APIs are needed, add `bundledPlugin("git4idea")` to `build.gradle.kts` dependencies.
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.mqtt.MqttPublisherService
-import com.github.spacepilothannah.settings.PluginSettings
+import com.github.madrigaleschat.mqtt.MqttPublisherService
+import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.dvcs.push.VcsPushOptionValue
 import com.intellij.openapi.vcs.VcsException
 
@@ -1355,13 +1355,13 @@ class VcsPushListener {
 
 ```xml
 <vcsCheckinHandlerFactory
-    implementation="com.github.spacepilothannah.listeners.VcsCommitListener"/>
+    implementation="com.github.madrigaleschat.listeners.VcsCommitListener"/>
 ```
 
 `VcsBranchListener` registers as a listener:
 
 ```xml
-<listener class="com.github.spacepilothannah.listeners.VcsBranchListener"
+<listener class="com.github.madrigaleschat.listeners.VcsBranchListener"
           topic="com.intellij.openapi.vcs.BranchChangeListener.VCS_BRANCH_CHANGED"/>
 ```
 
@@ -1370,7 +1370,7 @@ class VcsPushListener {
 - [ ] **Step 7: Run tests**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.listeners.VcsListenerTest"
+./gradlew test --tests "com.github.madrigaleschat.listeners.VcsListenerTest"
 ```
 
 Expected: 2 tests PASS
@@ -1378,10 +1378,10 @@ Expected: 2 tests PASS
 - [ ] **Step 8: Commit**
 
 ```bash
-git add src/main/kotlin/com/github/spacepilothannah/listeners/VcsCommitListener.kt \
-        src/main/kotlin/com/github/spacepilothannah/listeners/VcsPushListener.kt \
-        src/main/kotlin/com/github/spacepilothannah/listeners/VcsBranchListener.kt \
-        src/test/kotlin/com/github/spacepilothannah/listeners/VcsListenerTest.kt \
+git add src/main/kotlin/com/github/madrigaleschat/listeners/VcsCommitListener.kt \
+        src/main/kotlin/com/github/madrigaleschat/listeners/VcsPushListener.kt \
+        src/main/kotlin/com/github/madrigaleschat/listeners/VcsBranchListener.kt \
+        src/test/kotlin/com/github/madrigaleschat/listeners/VcsListenerTest.kt \
         src/main/resources/META-INF/plugin.xml
 git commit -m "feat(listeners): add VCS commit, push, and branch change listeners"
 ```
@@ -1391,9 +1391,9 @@ git commit -m "feat(listeners): add VCS commit, push, and branch change listener
 ### Task 8: Debug and focus listeners
 
 **Files:**
-- Create: `src/main/kotlin/com/github/spacepilothannah/listeners/BreakpointListener.kt`
-- Create: `src/main/kotlin/com/github/spacepilothannah/listeners/AppFocusListener.kt`
-- Create: `src/test/kotlin/com/github/spacepilothannah/listeners/BreakpointListenerTest.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/listeners/BreakpointListener.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/listeners/AppFocusListener.kt`
+- Create: `src/test/kotlin/com/github/madrigaleschat/listeners/BreakpointListenerTest.kt`
 - Modify: `src/main/resources/META-INF/plugin.xml`
 
 **Interfaces:**
@@ -1401,12 +1401,12 @@ git commit -m "feat(listeners): add VCS commit, push, and branch change listener
 
 - [ ] **Step 1: Write failing tests**
 
-Create `src/test/kotlin/com/github/spacepilothannah/listeners/BreakpointListenerTest.kt`:
+Create `src/test/kotlin/com/github/madrigaleschat/listeners/BreakpointListenerTest.kt`:
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.model.EventMode
+import com.github.madrigaleschat.model.EventMode
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -1431,7 +1431,7 @@ class BreakpointListenerTest {
 - [ ] **Step 2: Run test — expect compilation failure**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.listeners.BreakpointListenerTest"
+./gradlew test --tests "com.github.madrigaleschat.listeners.BreakpointListenerTest"
 ```
 
 Expected: compilation error
@@ -1441,11 +1441,11 @@ Expected: compilation error
 `XDebugSessionListener` must be registered per-session. Use `XDebuggerManagerListener` (application-level) to hook each new session, then register the session listener:
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.model.EventMode
-import com.github.spacepilothannah.mqtt.MqttPublisherService
-import com.github.spacepilothannah.settings.PluginSettings
+import com.github.madrigaleschat.model.EventMode
+import com.github.madrigaleschat.mqtt.MqttPublisherService
+import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.xdebugger.XDebugProcess
 import com.intellij.xdebugger.XDebugSessionListener
 import com.intellij.xdebugger.XDebuggerManagerListener
@@ -1481,10 +1481,10 @@ class BreakpointListener : XDebuggerManagerListener {
 - [ ] **Step 4: Create `AppFocusListener.kt`**
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.mqtt.MqttPublisherService
-import com.github.spacepilothannah.settings.PluginSettings
+import com.github.madrigaleschat.mqtt.MqttPublisherService
+import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.openapi.application.ApplicationActivationListener
 import com.intellij.openapi.wm.IdeFrame
 
@@ -1510,9 +1510,9 @@ class AppFocusListener : ApplicationActivationListener {
 Inside the existing `<listeners>` block:
 
 ```xml
-<listener class="com.github.spacepilothannah.listeners.BreakpointListener"
+<listener class="com.github.madrigaleschat.listeners.BreakpointListener"
           topic="com.intellij.xdebugger.XDebuggerManagerListener.TOPIC"/>
-<listener class="com.github.spacepilothannah.listeners.AppFocusListener"
+<listener class="com.github.madrigaleschat.listeners.AppFocusListener"
           topic="com.intellij.openapi.application.ApplicationActivationListener"/>
 ```
 
@@ -1521,7 +1521,7 @@ Note: verify `XDebuggerManagerListener.TOPIC` is the correct topic string — ch
 - [ ] **Step 6: Run tests**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.listeners.BreakpointListenerTest"
+./gradlew test --tests "com.github.madrigaleschat.listeners.BreakpointListenerTest"
 ```
 
 Expected: 2 tests PASS
@@ -1529,9 +1529,9 @@ Expected: 2 tests PASS
 - [ ] **Step 7: Commit**
 
 ```bash
-git add src/main/kotlin/com/github/spacepilothannah/listeners/BreakpointListener.kt \
-        src/main/kotlin/com/github/spacepilothannah/listeners/AppFocusListener.kt \
-        src/test/kotlin/com/github/spacepilothannah/listeners/BreakpointListenerTest.kt \
+git add src/main/kotlin/com/github/madrigaleschat/listeners/BreakpointListener.kt \
+        src/main/kotlin/com/github/madrigaleschat/listeners/AppFocusListener.kt \
+        src/test/kotlin/com/github/madrigaleschat/listeners/BreakpointListenerTest.kt \
         src/main/resources/META-INF/plugin.xml
 git commit -m "feat(listeners): add breakpoint hit and application focus listeners"
 ```
@@ -1541,8 +1541,8 @@ git commit -m "feat(listeners): add breakpoint hit and application focus listene
 ### Task 9: Inspection listener
 
 **Files:**
-- Create: `src/main/kotlin/com/github/spacepilothannah/listeners/InspectionListener.kt`
-- Create: `src/test/kotlin/com/github/spacepilothannah/listeners/InspectionListenerTest.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/listeners/InspectionListener.kt`
+- Create: `src/test/kotlin/com/github/madrigaleschat/listeners/InspectionListenerTest.kt`
 - Modify: `src/main/resources/META-INF/plugin.xml`
 
 **Interfaces:**
@@ -1552,12 +1552,12 @@ git commit -m "feat(listeners): add breakpoint hit and application focus listene
 
 - [ ] **Step 1: Write failing tests**
 
-Create `src/test/kotlin/com/github/spacepilothannah/listeners/InspectionListenerTest.kt`:
+Create `src/test/kotlin/com/github/madrigaleschat/listeners/InspectionListenerTest.kt`:
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.model.EventMode
+import com.github.madrigaleschat.model.EventMode
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -1589,7 +1589,7 @@ class InspectionListenerTest {
 - [ ] **Step 2: Run test — expect compilation failure**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.listeners.InspectionListenerTest"
+./gradlew test --tests "com.github.madrigaleschat.listeners.InspectionListenerTest"
 ```
 
 Expected: compilation error
@@ -1597,11 +1597,11 @@ Expected: compilation error
 - [ ] **Step 3: Create `InspectionListener.kt`**
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.model.EventMode
-import com.github.spacepilothannah.mqtt.MqttPublisherService
-import com.github.spacepilothannah.settings.PluginSettings
+import com.github.madrigaleschat.model.EventMode
+import com.github.madrigaleschat.mqtt.MqttPublisherService
+import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.project.Project
@@ -1663,14 +1663,14 @@ class InspectionListener(private val project: Project) : DaemonCodeAnalyzer.Daem
 Inside the existing `<listeners>` block:
 
 ```xml
-<listener class="com.github.spacepilothannah.listeners.InspectionListener"
+<listener class="com.github.madrigaleschat.listeners.InspectionListener"
           topic="com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.DAEMON_EVENT_TOPIC"/>
 ```
 
 - [ ] **Step 5: Run tests**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.listeners.InspectionListenerTest"
+./gradlew test --tests "com.github.madrigaleschat.listeners.InspectionListenerTest"
 ```
 
 Expected: 3 tests PASS
@@ -1678,8 +1678,8 @@ Expected: 3 tests PASS
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/main/kotlin/com/github/spacepilothannah/listeners/InspectionListener.kt \
-        src/test/kotlin/com/github/spacepilothannah/listeners/InspectionListenerTest.kt \
+git add src/main/kotlin/com/github/madrigaleschat/listeners/InspectionListener.kt \
+        src/test/kotlin/com/github/madrigaleschat/listeners/InspectionListenerTest.kt \
         src/main/resources/META-INF/plugin.xml
 git commit -m "feat(listeners): add inspection complete listener"
 ```
@@ -1689,8 +1689,8 @@ git commit -m "feat(listeners): add inspection complete listener"
 ### Task 10: Key presses listener
 
 **Files:**
-- Create: `src/main/kotlin/com/github/spacepilothannah/listeners/KeyPressListener.kt`
-- Create: `src/test/kotlin/com/github/spacepilothannah/listeners/KeyPressListenerTest.kt`
+- Create: `src/main/kotlin/com/github/madrigaleschat/listeners/KeyPressListener.kt`
+- Create: `src/test/kotlin/com/github/madrigaleschat/listeners/KeyPressListenerTest.kt`
 - Modify: `src/main/resources/META-INF/plugin.xml`
 
 **Interfaces:**
@@ -1698,12 +1698,12 @@ git commit -m "feat(listeners): add inspection complete listener"
 
 - [ ] **Step 1: Write failing tests**
 
-Create `src/test/kotlin/com/github/spacepilothannah/listeners/KeyPressListenerTest.kt`:
+Create `src/test/kotlin/com/github/madrigaleschat/listeners/KeyPressListenerTest.kt`:
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.model.EventMode
+import com.github.madrigaleschat.model.EventMode
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -1741,7 +1741,7 @@ class KeyPressListenerTest {
 - [ ] **Step 2: Run test — expect compilation failure**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.listeners.KeyPressListenerTest"
+./gradlew test --tests "com.github.madrigaleschat.listeners.KeyPressListenerTest"
 ```
 
 Expected: compilation error
@@ -1749,11 +1749,11 @@ Expected: compilation error
 - [ ] **Step 3: Create `KeyPressListener.kt`**
 
 ```kotlin
-package com.github.spacepilothannah.listeners
+package com.github.madrigaleschat.listeners
 
-import com.github.spacepilothannah.model.EventMode
-import com.github.spacepilothannah.mqtt.MqttPublisherService
-import com.github.spacepilothannah.settings.PluginSettings
+import com.github.madrigaleschat.model.EventMode
+import com.github.madrigaleschat.mqtt.MqttPublisherService
+import com.github.madrigaleschat.settings.PluginSettings
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.TypedActionHandler
@@ -1820,17 +1820,17 @@ Register as an application service:
 
 ```xml
 <applicationService
-    serviceImplementation="com.github.spacepilothannah.listeners.KeyPressListener"/>
+    serviceImplementation="com.github.madrigaleschat.listeners.KeyPressListener"/>
 ```
 
 Add a `postStartupActivity` to install the `TypedActionHandler` (must run after platform init):
 
-Create `src/main/kotlin/com/github/spacepilothannah/KeyPressInstaller.kt`:
+Create `src/main/kotlin/com/github/madrigaleschat/KeyPressInstaller.kt`:
 
 ```kotlin
-package com.github.spacepilothannah
+package com.github.madrigaleschat
 
-import com.github.spacepilothannah.listeners.KeyPressListener
+import com.github.madrigaleschat.listeners.KeyPressListener
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.ProjectActivity
@@ -1850,13 +1850,13 @@ Register in `plugin.xml`:
 
 ```xml
 <postStartupActivity
-    implementation="com.github.spacepilothannah.KeyPressInstaller"/>
+    implementation="com.github.madrigaleschat.KeyPressInstaller"/>
 ```
 
 - [ ] **Step 5: Run tests**
 
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.listeners.KeyPressListenerTest"
+./gradlew test --tests "com.github.madrigaleschat.listeners.KeyPressListenerTest"
 ```
 
 Expected: 5 tests PASS
@@ -1872,9 +1872,9 @@ Expected: all tests PASS
 - [ ] **Step 7: Commit**
 
 ```bash
-git add src/main/kotlin/com/github/spacepilothannah/listeners/KeyPressListener.kt \
-        src/main/kotlin/com/github/spacepilothannah/KeyPressInstaller.kt \
-        src/test/kotlin/com/github/spacepilothannah/listeners/KeyPressListenerTest.kt \
+git add src/main/kotlin/com/github/madrigaleschat/listeners/KeyPressListener.kt \
+        src/main/kotlin/com/github/madrigaleschat/KeyPressInstaller.kt \
+        src/test/kotlin/com/github/madrigaleschat/listeners/KeyPressListenerTest.kt \
         src/main/resources/META-INF/plugin.xml
 git commit -m "feat(listeners): add key presses listener with zero-transition detection"
 ```

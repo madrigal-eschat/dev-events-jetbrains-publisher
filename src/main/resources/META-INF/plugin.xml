@@ -1,22 +1,22 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.madigaleschat.IDEEventsToWebhook</id>
+    <id>com.github.madrigaleschat.DevEventsPublisher</id>
     <name>IDE Events Publisher</name>
-    <vendor>madigaleschat</vendor>
+    <vendor>madrigaleschat</vendor>
     <description>Publishes IDE events to an MQTT broker.</description>
 
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService
-            serviceImplementation="com.github.madigaleschat.settings.PluginSettings"/>
+            serviceImplementation="com.github.madrigaleschat.settings.PluginSettings"/>
         <applicationService
-            serviceImplementation="com.github.madigaleschat.mqtt.MqttPublisherService"/>
+            serviceImplementation="com.github.madrigaleschat.mqtt.MqttPublisherService"/>
         <applicationService
-            serviceImplementation="com.github.madigaleschat.listeners.KeyPressListener"/>
+            serviceImplementation="com.github.madrigaleschat.listeners.KeyPressListener"/>
 
         <applicationConfigurable
-            instance="com.github.madigaleschat.settings.PluginSettingsConfigurable"
+            instance="com.github.madrigaleschat.settings.PluginSettingsConfigurable"
             displayName="IDE Events"
             parentId="tools"/>
 
@@ -25,34 +25,34 @@
                            isLogByDefault="true"/>
 
         <postStartupActivity
-            implementation="com.github.madigaleschat.StartupNotifier"/>
+            implementation="com.github.madrigaleschat.StartupNotifier"/>
         <postStartupActivity
-            implementation="com.github.madigaleschat.KeyPressInstaller"/>
+            implementation="com.github.madrigaleschat.KeyPressInstaller"/>
 
         <vcsCheckinHandlerFactory
-            implementation="com.github.madigaleschat.listeners.VcsCommitListener"/>
+            implementation="com.github.madrigaleschat.listeners.VcsCommitListener"/>
     </extensions>
 
     <listeners>
-        <listener class="com.github.madigaleschat.listeners.FileSaveListener"
+        <listener class="com.github.madrigaleschat.listeners.FileSaveListener"
                   topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
-        <listener class="com.github.madigaleschat.listeners.FileEditorListener"
+        <listener class="com.github.madrigaleschat.listeners.FileEditorListener"
                   topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
-        <listener class="com.github.madigaleschat.listeners.BuildTaskListener"
+        <listener class="com.github.madrigaleschat.listeners.BuildTaskListener"
                   topic="com.intellij.task.ProjectTaskListener"/>
-        <listener class="com.github.madigaleschat.listeners.TestRunListener"
+        <listener class="com.github.madrigaleschat.listeners.TestRunListener"
                   topic="com.intellij.execution.testframework.sm.runner.SMTRunnerEventsListener"/>
-        <listener class="com.github.madigaleschat.listeners.VcsBranchListener"
+        <listener class="com.github.madrigaleschat.listeners.VcsBranchListener"
                   topic="com.intellij.openapi.vcs.BranchChangeListener"/>
         <!-- TODO: VcsPushListener registration deferred — push interface not yet confirmed via jb.gg/ipe -->
-        <listener class="com.github.madigaleschat.listeners.BreakpointListener"
+        <listener class="com.github.madrigaleschat.listeners.BreakpointListener"
                   topic="com.intellij.xdebugger.XDebuggerManagerListener"/>
-        <listener class="com.github.madigaleschat.listeners.AppFocusListener"
+        <listener class="com.github.madrigaleschat.listeners.AppFocusListener"
                   topic="com.intellij.openapi.application.ApplicationActivationListener"/>
     </listeners>
 
     <projectListeners>
-        <listener class="com.github.madigaleschat.listeners.InspectionListener"
+        <listener class="com.github.madrigaleschat.listeners.InspectionListener"
                   topic="com.intellij.codeInsight.daemon.DaemonCodeAnalyzer$DaemonListener"/>
     </projectListeners>
 </idea-plugin>
