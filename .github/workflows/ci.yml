@@ -26,6 +26,10 @@ jobs:
   release:
     if: github.event_name == 'push'
     needs: ci
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     uses: madrigal-eschat/dev-events-mqtt/.github/workflows/_semrel.yml@main
     secrets:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
