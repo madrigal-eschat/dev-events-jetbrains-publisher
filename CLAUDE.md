@@ -4,9 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-JetBrains IDE plugin that listens for IDE events and publishes them as JSON over MQTT. Part of the broader IDEEvents ecosystem — message format is defined in `../../MESSAGE-FORMAT.md` (topic: `ide-events/{host}`, envelope schema with `version`, `event`, `timestamp`, `source`, `data` fields).
-
-Currently early-stage: scaffolding only. The real implementation (MQTT client, event listeners, settings UI) is yet to be built.
+JetBrains IDE plugin that listens for IDE events and publishes them as CloudEvents 1.0 envelopes over MQTT. Part of the broader IDEEvents ecosystem — message format is defined in `../../MESSAGE-FORMAT.md`.
 
 ## Commands
 
@@ -19,26 +17,50 @@ Currently early-stage: scaffolding only. The real implementation (MQTT client, e
 
 Run a single test class:
 ```bash
-./gradlew test --tests "com.github.spacepilothannah.SomeTest"
+./gradlew test --tests "com.github.madrigaleschat.SomeTest"
 ```
+
+**Lint (run before every commit):**
+```bash
+find src -name "*.kt" -print0 | xargs -0 ktlint          # check
+find src -name "*.kt" -print0 | xargs -0 ktlint --format  # auto-fix
+```
+
+ktlint does not auto-fix wildcard imports (`standard:no-wildcard-imports`) — expand those manually.
 
 ## Architecture
 
-**IntelliJ Platform Gradle Plugin** (`org.jetbrains.intellij.platform`) targets IntelliJ IDEA 2025.3.5. Package root: `com.github.spacepilothannah`.
+**Package root:** `com.github.madrigaleschat`  
+**Platform:** IntelliJ Platform Gradle Plugin targeting IntelliJ IDEA 2025.3.5  
+**MQTT library:** Eclipse Paho (`org.eclipse.paho.client.mqttv3`)
 
-Plugin entry points are declared in `src/main/resources/META-INF/plugin.xml` — extension points for listeners (e.g. `FileDocumentManagerListener`, `VcsListener`, build listeners) must be registered here before they fire.
+### Data flow
 
-Current source files are template scaffolding:
-- `MyToolWindowFactory` — placeholder tool window (replace with settings/status UI)
-- `MyMessageBundle` — i18n helper backed by `messages/MyMessageBundle.properties`
+1. An IntelliJ extension point fires (build, file, VCS, debugger, focus, keypress)
+2. The listener calls `MqttPublisherService.getInstance().publish(eventName, data, project?)`
+3. `publish()` checks: MQTT connected? On home network? Event mode ≠ OFF?
+4. Wraps data in a CloudEvents 1.0 envelope via `buildEnvelope()` and publishes JSON to the MQTT topic
 
-**Extension points to implement** (wire in `plugin.xml`):
-- `com.intellij.openapi.fileEditor.FileEditorManagerListener` — file open/close/save
-- `com.intellij.task.ProjectTaskListener` — build/test task start/success/fail
-- `com.intellij.openapi.vcs.changes.CommitSessionListener` / push listeners — VCS events
-- `com.intellij.xdebugger.XDebugSessionListener` — breakpoint hit
-- `com.intellij.openapi.application.ApplicationActivationListener` — focus gained/lost
+### Key components
 
-MQTT client library will need to be added to `build.gradle.kts` dependencies. Configuration (broker URL, port, credentials) should be stored via `PropertiesComponent` or a `PersistentStateComponent` service.
+**`MqttPublisherService`** — application-level service (registered in `plugin.xml`). Connects on init in a pooled thread. `publish()` is fire-and-forget (QoS 0). Call `reconfigure()` after settings change.
+
+**`PluginSettings`** — `PersistentStateComponent` stored in `DevEventsPublisher.xml`. Password stored separately via IDE `PasswordSafe`. Each event has an `EventMode` (OFF / REDACTED / FULL) stored as a string map. `FULL_ONLY_EVENTS` identifies events with no sensitive fields where REDACTED degrades to FULL.
+
+**`isOnHomeNetwork(subnet)`** — CIDR check against all local IPv4 addresses. Blank subnet = always publish.
+
+**`buildEnvelope()`** — produces a CloudEvents 1.0 map. Topic is `{topicPrefix}/{hostname}` when `includeHost=true`; source is `editor/{host}/jetbrains/{ide-product}`.
+
+**`StartupNotifier`** — warns at project open if all events are OFF.
+
+**`KeyPressInstaller`** — installs a raw key press listener via `IdeEventQueue`.
+
+### Settings UI
+
+`PluginSettingsConfigurable` → `PluginSettingsPanel`. Per-event mode is a `JComboBox` inside a `JBTable` using `DefaultCellEditor`. Settings UI lives at **Settings > Tools > IDE Events**.
+
+### Registering new listeners
+
+All extension points must be declared in `src/main/resources/META-INF/plugin.xml` before they fire. Each listener calls `MqttPublisherService` directly — no intermediate bus.
 
 Logs from `runIde` appear in `.intellijPlatform/sandbox/*/log/idea.log`.
