@@ -33,6 +33,7 @@ class PluginSettings : PersistentStateComponent<PluginSettings.State> {
         var topicPrefix: String = "ide-events",
         var includeHost: Boolean = true,
         var includeProject: Boolean = true,
+        var homeSubnet: String = "",
         var eventModes: MutableMap<String, String> = mutableMapOf()
     )
 
@@ -47,6 +48,7 @@ class PluginSettings : PersistentStateComponent<PluginSettings.State> {
     var topicPrefix: String get() = _state.topicPrefix; set(v) { _state.topicPrefix = v }
     var includeHost: Boolean get() = _state.includeHost; set(v) { _state.includeHost = v }
     var includeProject: Boolean get() = _state.includeProject; set(v) { _state.includeProject = v }
+    var homeSubnet: String get() = _state.homeSubnet; set(v) { _state.homeSubnet = v }
 
     fun getEventMode(event: String): EventMode =
         _state.eventModes[event]?.let { runCatching { EventMode.valueOf(it) }.getOrNull() } ?: EventMode.OFF

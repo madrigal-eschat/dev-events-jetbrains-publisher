@@ -11,7 +11,9 @@ import org.eclipse.paho.client.mqttv3.MqttAsyncClient
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
+import java.net.Inet4Address
 import java.net.InetAddress
+import java.net.NetworkInterface
 import java.time.Instant
 
 fun buildEnvelope(
@@ -25,6 +27,31 @@ fun buildEnvelope(
     "source" to source,
     "data" to data
 )
+
+fun allLocalIpv4Addresses(): Sequence<Inet4Address> =
+    NetworkInterface.getNetworkInterfaces()?.asSequence()
+        ?.flatMap { it.inetAddresses.asSequence() }
+        ?.filterIsInstance<Inet4Address>()
+        ?: emptySequence()
+
+private fun ByteArray.toInt32() = fold(0) { acc, b -> (acc shl 8) or (b.toInt() and 0xFF) }
+
+fun isOnHomeNetwork(
+    subnet: String,
+    localAddresses: Sequence<Inet4Address> = allLocalIpv4Addresses()
+): Boolean {
+    if (subnet.isBlank()) return true
+    val slash = subnet.indexOf('/')
+    if (slash == -1) return false
+    val prefixLen = subnet.substring(slash + 1).toIntOrNull() ?: return false
+    if (prefixLen !in 0..32) return false
+    val networkBytes = runCatching {
+        InetAddress.getByName(subnet.substring(0, slash))
+    }.getOrNull()?.takeIf { it is Inet4Address }?.address ?: return false
+    val mask = if (prefixLen == 0) 0 else (-1 shl (32 - prefixLen))
+    val networkInt = networkBytes.toInt32() and mask
+    return localAddresses.any { addr -> addr.address.toInt32() and mask == networkInt }
+}
 
 @Suppress("UNCHECKED_CAST")
 fun Map<String, Any?>.filterNulls(): Map<String, Any?> =
@@ -93,6 +120,7 @@ class MqttPublisherService {
         if (!c.isConnected) return
 
         val settings = PluginSettings.getInstance()
+        if (!isOnHomeNetwork(settings.homeSubnet)) return
 
         val source = buildMap<String, Any?> {
             put("ide_family", "jetbrains")

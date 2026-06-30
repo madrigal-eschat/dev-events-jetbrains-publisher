@@ -24,6 +24,7 @@ class PluginSettingsPanel {
     private val resolvedTopicLabel = JBLabel()
     private val includeHostCheckbox = JCheckBox("Include hostname in topic and envelope")
     private val includeProjectCheckbox = JCheckBox("Include project name in envelope")
+    private val homeSubnetField = JBTextField().apply { emptyText.text = "e.g. 192.168.1.0/24 (empty = always publish)" }
     private val warningLabel = JBLabel("All events are OFF — plugin will not publish anything").apply {
         foreground = Color(0xBB, 0x33, 0x33)
     }
@@ -114,6 +115,14 @@ class PluginSettingsPanel {
         gc.gridy = row++
         p.add(includeProjectCheckbox, gc)
 
+        gc.gridwidth = 1; gc.gridx = 0; gc.gridy = row; gc.fill = GridBagConstraints.NONE; gc.weightx = 0.0
+        gc.insets = Insets(2, 0, 2, 8)
+        p.add(JBLabel("Home subnet:"), gc)
+        gc.gridx = 1; gc.fill = GridBagConstraints.HORIZONTAL; gc.weightx = 1.0
+        gc.insets = Insets(2, 0, 2, 0)
+        p.add(homeSubnetField, gc)
+        row++
+
         gc.gridy = row++
         p.add(JSeparator(), gc.apply { fill = GridBagConstraints.HORIZONTAL })
 
@@ -147,6 +156,7 @@ class PluginSettingsPanel {
         settings.topicPrefix = topicPrefixField.text.trim()
         settings.includeHost = includeHostCheckbox.isSelected
         settings.includeProject = includeProjectCheckbox.isSelected
+        settings.homeSubnet = homeSubnetField.text.trim()
 
         val password = String(passwordField.password)
         if (password.isNotEmpty()) savePassword(password)
@@ -163,6 +173,7 @@ class PluginSettingsPanel {
         topicPrefixField.text = settings.topicPrefix
         includeHostCheckbox.isSelected = settings.includeHost
         includeProjectCheckbox.isSelected = settings.includeProject
+        homeSubnetField.text = settings.homeSubnet
         eventNames.forEachIndexed { i, name ->
             tableModel.setValueAt(settings.getEventMode(name), i, 1)
         }
@@ -175,6 +186,7 @@ class PluginSettingsPanel {
         topicPrefixField.text.trim() != settings.topicPrefix ||
         includeHostCheckbox.isSelected != settings.includeHost ||
         includeProjectCheckbox.isSelected != settings.includeProject ||
+        homeSubnetField.text.trim() != settings.homeSubnet ||
         eventNames.indices.any { i ->
             tableModel.getValueAt(i, 1) as EventMode != settings.getEventMode(eventNames[i])
         }
