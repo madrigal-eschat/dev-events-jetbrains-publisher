@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/compare/v1.0.0...v1.0.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* **settings:** strip domain from hostname in topic preview ([d1857b5](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/commit/d1857b58172c2295506b6102755a6de1c4127078))
+
 # 1.0.0 (2026-06-30)
 
 
