@@ -38,7 +38,8 @@ class PluginSettingsPanel {
             foreground = Color(0xBB, 0x33, 0x33)
         }
 
-    private val hostname: String = runCatching { InetAddress.getLocalHost().hostName }.getOrDefault("unknown")
+    private val hostname: String =
+        runCatching { InetAddress.getLocalHost().hostName }.getOrDefault("unknown").substringBefore('.')
 
     private val eventNames = PluginSettings.ALL_EVENTS
     private val tableModel =
