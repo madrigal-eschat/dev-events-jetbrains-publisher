@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/compare/v1.0.1...v1.0.2) (2026-07-03)
+
+
+### Bug Fixes
+
+* register listeners under applicationListeners, correct EP/notification IDs ([870379b](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/commit/870379bac2b1ce057e80b2028a5989d863ba7bbf))
+
 ## [1.0.1](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/compare/v1.0.0...v1.0.1) (2026-07-02)
 
 
