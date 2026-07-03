@@ -11,10 +11,10 @@ class StartupNotifier : ProjectActivity {
         if (PluginSettings.getInstance().allEventsOff()) {
             NotificationGroupManager
                 .getInstance()
-                .getNotificationGroup("IDE Events Publisher")
+                .getNotificationGroup("Dev Events Publisher")
                 .createNotification(
-                    "IDE Events publisher is not configured",
-                    "Open Settings > Tools > IDE Events to enable event publishing.",
+                    "Dev Events publisher is not configured",
+                    "Open Settings > Tools > Dev Events to enable event publishing.",
                     NotificationType.WARNING,
                 ).notify(project)
         }

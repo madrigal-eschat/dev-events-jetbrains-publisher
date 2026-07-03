@@ -1,7 +1,7 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.madrigaleschat.DevEventsPublisher</id>
-    <name>Dev-events Publisher</name>
+    <name>Dev Events Publisher</name>
     <vendor>madrigaleschat</vendor>
     <description>Publishes (redactable) events to an MQTT broker of your choice</description>
 
@@ -17,7 +17,7 @@
 
         <applicationConfigurable
             instance="com.github.madrigaleschat.settings.PluginSettingsConfigurable"
-            displayName="Dev-events"
+            displayName="Dev Events"
             parentId="tools"/>
 
         <notificationGroup id="Dev Events Publisher"
@@ -29,11 +29,11 @@
         <postStartupActivity
             implementation="com.github.madrigaleschat.KeyPressInstaller"/>
 
-        <vcsCheckinHandlerFactory
+        <checkinHandlerFactory
             implementation="com.github.madrigaleschat.listeners.VcsCommitListener"/>
     </extensions>
 
-    <listeners>
+    <applicationListeners>
         <listener class="com.github.madrigaleschat.listeners.FileSaveListener"
                   topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
         <listener class="com.github.madrigaleschat.listeners.FileEditorListener"
@@ -49,6 +49,6 @@
                   topic="com.intellij.xdebugger.XDebuggerManagerListener"/>
         <listener class="com.github.madrigaleschat.listeners.AppFocusListener"
                   topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </listeners>
+    </applicationListeners>
 
 </idea-plugin>
