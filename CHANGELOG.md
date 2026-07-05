@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/compare/v1.0.2...v1.1.0) (2026-07-05)
+
+
+### Features
+
+* **ci:** attach built plugin zip to GitHub releases ([b4adcb0](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/commit/b4adcb0b9a805dec6bd92859ef0386d2fc53be28))
+
 ## [1.0.2](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/compare/v1.0.1...v1.0.2) (2026-07-03)
 
 
