@@ -28,7 +28,7 @@ class PluginSettings : PersistentStateComponent<PluginSettings.State> {
         var brokerUrl: String = "tcp://localhost:1883",
         var username: String = "",
         var clientId: String = UUID.randomUUID().toString(),
-        var topicPrefix: String = "ide-events",
+        var topicPrefix: String = "dev-events",
         var includeHost: Boolean = true,
         var includeProject: Boolean = true,
         var homeSubnet: String = "",

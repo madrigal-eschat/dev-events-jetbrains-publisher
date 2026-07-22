@@ -28,7 +28,7 @@ class KeyPressListener : TypedActionHandler {
     private var lastCount = 0
     private val scheduler =
         Executors.newSingleThreadScheduledExecutor { r ->
-            Thread(r, "ide-events-keypresses").apply { isDaemon = true }
+            Thread(r, "dev-events-keypresses").apply { isDaemon = true }
         }
     private var originalHandler: TypedActionHandler? = null
 
