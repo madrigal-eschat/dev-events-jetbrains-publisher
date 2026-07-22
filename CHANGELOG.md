@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/compare/v1.1.0...v1.1.1) (2026-07-22)
+
+
+### Bug Fixes
+
+* remove duplicate markdown link reference in README ([60bc05f](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/commit/60bc05fe54ca00bd488e61f378fde76153be3db9))
+
 # [1.1.0](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/compare/v1.0.2...v1.1.0) (2026-07-05)
 
 
