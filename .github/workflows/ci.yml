@@ -7,6 +7,13 @@ on:
     branches: [main]
 
 jobs:
+  debug-secret:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check GH_TOKEN visibility
+        run: echo "GH_TOKEN set = ${{ secrets.GH_TOKEN != '' }}"
+
   commitlint:
     if: github.event_name == 'pull_request'
     uses: madrigal-eschat/dev-events-mqtt/.github/workflows/_commitlint.yml@main
