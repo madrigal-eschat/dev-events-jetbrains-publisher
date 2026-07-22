@@ -102,8 +102,6 @@ manually via UI.
 
 [gradle:lifecycle-tasks]: https://docs.gradle.org/current/userguide/java_plugin.html#lifecycle_tasks
 
-[jb:github]: https://github.com/JetBrains/.github/blob/main/profile/README.md
-
 [jb:forum]: https://platform.jetbrains.com/
 
 [jb:quality-guidelines]: https://plugins.jetbrains.com/docs/marketplace/quality-guidelines.html
