@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/compare/v1.1.3...v1.1.4) (2026-07-24)
+
+
+### Bug Fixes
+
+* topic-prefix used to default to ide-events. should be dev-events following the rename ([34f72f1](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/commit/34f72f1b100d3982ec3af5e5de7ea772ef0842f5))
+
 ## [1.1.3](https://github.com/madrigal-eschat/dev-events-jetbrains-publisher/compare/v1.1.2...v1.1.3) (2026-07-22)
 
 
