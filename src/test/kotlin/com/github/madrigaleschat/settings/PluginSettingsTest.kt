@@ -3,8 +3,6 @@ package com.github.madrigaleschat.settings
 import com.github.madrigaleschat.model.EventMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -17,8 +15,8 @@ class PluginSettingsTest {
     }
 
     @Test
-    fun `default topicPrefix is ide-events`() {
-        assertEquals("ide-events", freshState().topicPrefix)
+    fun `default topicPrefix is dev-events`() {
+        assertEquals("dev-events", freshState().topicPrefix)
     }
 
     @Test
