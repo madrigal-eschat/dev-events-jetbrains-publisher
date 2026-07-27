@@ -1,113 +1,147 @@
-# dev-events Publisher (Plugin for Jetbrains IDEs)
+# Dev Events Publisher (JetBrains plugin)
 
-[![Twitter Follow](https://img.shields.io/badge/follow-%40JBPlatform-1DA1F2?logo=twitter)](https://twitter.com/JBPlatform)
-[![Developers Forum](https://img.shields.io/badge/JetBrains%20Platform-Join-blue)][jb:forum]
+A JetBrains IDE plugin that listens for IDE events and publishes them as
+CloudEvents 1.0 envelopes over MQTT. It's part of the Dev Events ecosystem —
+the envelope format is defined in the shared message-format spec used by all
+Dev Events publishers and consumers.
 
-## Plugin structure
+## What it does
 
-A generated project contains the following content structure:
+The plugin listens for build, test, file, VCS, debugger, focus, and keypress
+events, and publishes each one (fire-and-forget, QoS 0) to the MQTT topic
+`{topicPrefix}/{hostname}`. Every event is wrapped in a CloudEvents envelope,
+with `source` set to `editor/{host}/jetbrains/{ide-product}`.
 
+Events tracked (toggle per-event in settings):
+
+| Event | Trigger |
+|---|---|
+| `devevents.task.started/succeeded/failed` | Build/run task lifecycle |
+| `devevents.test.started/succeeded/failed` | Test run lifecycle |
+| `devevents.file.saved/opened/closed` | File editor activity |
+| `devevents.breakpoint.hit` | Debugger stop |
+| `devevents.vcs.committed` | VCS commit (via checkin handler) |
+| `devevents.vcs.branch.changed` | Branch switch |
+| `devevents.editor.focus.gained/lost` | IDE window (de)activation |
+| `devevents.keypresses` | Raw keypress stream (via `IdeEventQueue`) |
+
+## Install
+
+The plugin isn't on JetBrains Marketplace yet — publishing there is still a
+manual step (see the task list). Until it is, build and install it yourself:
+
+```bash
+./gradlew buildPlugin
 ```
-.
-├── .run/                   Predefined Run/Debug Configurations
-├── build/                  Output build directory
-├── gradle
-│   ├── wrapper/            Gradle Wrapper
-│   ├── libs.versions.toml  Version catalog
-├── src                     Plugin sources
-│   ├── main
-│   │   ├── kotlin/         Kotlin production sources
-│   │   └── resources/      Resources - plugin.xml, icons, messages
-├── .gitignore              Git ignoring rules
-├── build.gradle.kts        Gradle build configuration
-├── gradle.properties       Gradle configuration properties
-├── gradlew                 *nix Gradle Wrapper script
-├── gradlew.bat             Windows Gradle Wrapper script
-├── README.md               README
-└── settings.gradle.kts     Gradle project settings
+
+This produces a zip under `build/distributions/`. In your IDE, go to
+**Settings > Plugins > ⚙️ > Install Plugin from Disk...** and pick the zip.
+
+## Configuration
+
+All settings live under **Settings > Tools > IDE Events**.
+
+- **Broker connection** — the MQTT broker URL (`tcp://host:1883`), username,
+  password, and client ID. The password is stored via the IDE's PasswordSafe,
+  not in the plain settings XML.
+- **Topic prefix** — defaults to `ide-events`. The published topic is
+  `{prefix}/{hostname}` when *include host* is enabled.
+- **Home subnet (CIDR)** — if set, the plugin only publishes when one of your
+  local IPv4 addresses matches this CIDR, so you can avoid leaking events
+  outside your home network. Leave it blank to always publish.
+- **Per-event mode** — each event can independently be set to OFF, REDACTED,
+  or FULL. A few events have no sensitive fields to begin with (VCS commit,
+  test started, focus gained/lost), so REDACTED behaves the same as FULL for
+  those.
+- If every event is turned off, a startup notification warns you when you
+  open a project.
+
+## Development
+
+### Requirements
+
+- IntelliJ IDEA 2025.3.5+ (plugin targets this platform version)
+- JDK per Gradle toolchain (see `build.gradle.kts`)
+
+### Local MQTT broker
+
+A throwaway Mosquitto broker for manual testing:
+
+```bash
+docker compose up
 ```
 
-In addition to the configuration files, the most crucial part is the `src` directory, which contains our implementation
-and the manifest for our plugin – [plugin.xml][file:plugin.xml].
+Listens on `localhost:1883`, config at `mosquitto/mosquitto.conf`.
 
-> [!NOTE]
-> To use Java in your plugin, create the `/src/main/java` directory.
+### Common tasks
 
-## Plugin configuration file
+```bash
+./gradlew build          # compile + test
+./gradlew test           # run tests only
+./gradlew runIde         # launch sandbox IDE with plugin loaded (slow first run)
+./gradlew verifyPlugin   # compatibility checks
+```
 
-The plugin configuration file is a [plugin.xml][file:plugin.xml] file located in the `src/main/resources/META-INF`
-directory.
-It provides general information about the plugin, its dependencies, extensions, and listeners.
+Single test class:
 
-You can read more about this file in the [Plugin Configuration File][docs:plugin.xml] section of our documentation.
+```bash
+./gradlew test --tests "com.github.madrigaleschat.SomeTest"
+```
 
-If you're still not quite sure what this is all about, read [Introduction to IntelliJ Platform][docs:intro].
+Predefined Run/Debug configs under `.run/` expose these same tasks in the IDE
+(Run Plugin, Run Tests, Run Verifications). Sandbox logs land in
+`.intellijPlatform/sandbox/*/log/idea.log`.
 
-## Predefined Run/Debug configurations
+### Lint
 
-Within the default project structure, there is a `.run` directory provided containing predefined *Run/Debug
-configurations* that expose corresponding Gradle tasks:
+Run before every commit:
 
-| Configuration name | Description                                                                                                                                                                         |
-|--------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Run Plugin         | Runs [`:runIde`][gh:intellij-platform-gradle-plugin-runIde] IntelliJ Platform Gradle Plugin task. Use the *Debug* icon for plugin debugging.                                        |
-| Run Tests          | Runs [`:test`][gradle:lifecycle-tasks] Gradle task.                                                                                                                                 |
-| Run Verifications  | Runs [`:verifyPlugin`][gh:intellij-platform-gradle-plugin-verifyPlugin] IntelliJ Platform Gradle Plugin task to check the plugin compatibility against the specified IntelliJ IDEs. |
+```bash
+find src -name "*.kt" -print0 | xargs -0 ktlint          # check
+find src -name "*.kt" -print0 | xargs -0 ktlint --format  # auto-fix
+```
 
-> [!NOTE]
-> You can find the logs from the running task in the `idea.log` tab.
+ktlint won't auto-fix wildcard imports (`standard:no-wildcard-imports`) — expand
+those by hand.
 
-## Publishing the plugin
+### Commits & releases
 
-> [!TIP]
-> Make sure to follow all guidelines listed in [Publishing a Plugin][docs:publishing] to follow all recommended and
-> required steps.
+Commit messages follow Conventional Commits and are checked by commitlint.
+Releases are handled by semantic-release running on `main`: it bumps the
+version in `gradle.properties`, updates the changelog, and creates the GitHub
+release. Don't bump the version by hand.
 
-Releasing a plugin to [JetBrains Marketplace](https://plugins.jetbrains.com) is a straightforward operation that uses
-the `publishPlugin` Gradle task provided by
-the [intellij-platform-gradle-plugin][gh:intellij-platform-gradle-plugin-docs].
+### Architecture
 
-You can also upload the plugin to the [JetBrains Plugin Repository](https://plugins.jetbrains.com/plugin/upload)
-manually via UI.
+- **`MqttPublisherService`** is the application-level service that connects
+  to the broker on startup, from a pooled thread. `publish()` is
+  fire-and-forget: it checks whether the plugin is connected, whether you're
+  on your home network, and whether the event's mode isn't OFF, before
+  sending. Call `reconfigure()` after settings change.
+- **`PluginSettings`** is a `PersistentStateComponent` stored in
+  `DevEventsPublisher.xml`. The password is kept separately via PasswordSafe.
+- **`isOnHomeNetwork(subnet)`** checks the CIDR against your local IPv4
+  addresses.
+- **`buildEnvelope()`** builds the CloudEvents envelope.
+- **Listeners**, under `src/main/kotlin/.../listeners/`, exist one per
+  extension point and each call `MqttPublisherService` directly — there's no
+  intermediate event bus. New listeners must also be registered in
+  `src/main/resources/META-INF/plugin.xml` before they'll fire.
+- **The settings UI** is `PluginSettingsConfigurable` backed by
+  `PluginSettingsPanel`; the per-event mode picker is a `JComboBox` inside a
+  `JBTable`.
 
-## Useful links
+## Publishing (maintainer)
 
-- [IntelliJ Platform SDK Plugin SDK][docs]
-- [IntelliJ Platform Gradle Plugin Documentation][gh:intellij-platform-gradle-plugin-docs]
-- [IntelliJ Platform Explorer][jb:ipe]
-- [JetBrains Marketplace Quality Guidelines][jb:quality-guidelines]
-- [IntelliJ Platform UI Guidelines][jb:ui-guidelines]
-- [JetBrains Marketplace Paid Plugins][jb:paid-plugins]
-- [IntelliJ SDK Code Samples][gh:code-samples]
+Publishing to the Marketplace isn't automated yet (see the task list). For
+now, do it manually:
 
-[docs]: https://plugins.jetbrains.com/docs/intellij
+```bash
+./gradlew publishPlugin
+```
 
-[docs:intro]: https://plugins.jetbrains.com/docs/intellij/intellij-platform.html?from=IJPluginTemplate
+This needs a `PUBLISH_TOKEN` environment variable set to a JetBrains
+Marketplace token. Alternatively, upload the built zip yourself via the
+[Plugin Repository upload page][jb:upload].
 
-[docs:plugin.xml]: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html?from=IJPluginTemplate
-
-[docs:publishing]: https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate
-
-[file:plugin.xml]: ./src/main/resources/META-INF/plugin.xml
-
-[gh:code-samples]: https://github.com/JetBrains/intellij-sdk-code-samples
-
-[gh:intellij-platform-gradle-plugin]: https://github.com/JetBrains/intellij-platform-gradle-plugin
-
-[gh:intellij-platform-gradle-plugin-docs]: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
-
-[gh:intellij-platform-gradle-plugin-runIde]: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-tasks.html#runIde
-
-[gh:intellij-platform-gradle-plugin-verifyPlugin]: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-tasks.html#verifyPlugin
-
-[gradle:lifecycle-tasks]: https://docs.gradle.org/current/userguide/java_plugin.html#lifecycle_tasks
-
-[jb:forum]: https://platform.jetbrains.com/
-
-[jb:quality-guidelines]: https://plugins.jetbrains.com/docs/marketplace/quality-guidelines.html
-
-[jb:paid-plugins]: https://plugins.jetbrains.com/docs/marketplace/paid-plugins-marketplace.html
-
-[jb:ipe]: https://jb.gg/ipe
-
-[jb:ui-guidelines]: https://jetbrains.github.io/ui
+[jb:upload]: https://plugins.jetbrains.com/plugin/upload
