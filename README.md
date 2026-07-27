@@ -1,14 +1,16 @@
 # Dev Events Publisher (JetBrains plugin)
 
-JetBrains IDE plugin listens IDE events, publish as CloudEvents 1.0 over MQTT.
-Part IDEEvents ecosystem — envelope format defined in the shared message-format
-spec used by all publishers/consumers in that ecosystem.
+A JetBrains IDE plugin that listens for IDE events and publishes them as
+CloudEvents 1.0 envelopes over MQTT. It's part of the Dev Events ecosystem —
+the envelope format is defined in the shared message-format spec used by all
+Dev Events publishers and consumers.
 
 ## What it does
 
-Plugin hooks build/test/file/VCS/debugger/focus/keypress events, fire-and-forget
-publish (QoS 0) to MQTT topic `{topicPrefix}/{hostname}`. Each event wrapped in
-CloudEvents envelope, `source` field `editor/{host}/jetbrains/{ide-product}`.
+The plugin listens for build, test, file, VCS, debugger, focus, and keypress
+events, and publishes each one (fire-and-forget, QoS 0) to the MQTT topic
+`{topicPrefix}/{hostname}`. Every event is wrapped in a CloudEvents envelope,
+with `source` set to `editor/{host}/jetbrains/{ide-product}`.
 
 Events tracked (toggle per-event in settings):
 
@@ -25,30 +27,34 @@ Events tracked (toggle per-event in settings):
 
 ## Install
 
-Not yet on JetBrains Marketplace (distribution automation still hand-run — see
-task list). Until then, build and install manually:
+The plugin isn't on JetBrains Marketplace yet — publishing there is still a
+manual step (see the task list). Until it is, build and install it yourself:
 
 ```bash
 ./gradlew buildPlugin
 ```
 
-Produces a zip under `build/distributions/`. In IDE: **Settings > Plugins >
-⚙️ > Install Plugin from Disk...**, pick the zip.
+This produces a zip under `build/distributions/`. In your IDE, go to
+**Settings > Plugins > ⚙️ > Install Plugin from Disk...** and pick the zip.
 
 ## Configuration
 
-**Settings > Tools > IDE Events**.
+All settings live under **Settings > Tools > IDE Events**.
 
-- **Broker connection** — URL (`tcp://host:1883`), username, password (stored via
-  IDE PasswordSafe, not in plain settings XML), client ID.
-- **Topic prefix** — default `ide-events`; published topic is `{prefix}/{hostname}`
-  when *include host* is on.
-- **Home subnet (CIDR)** — if set, plugin only publishes when a local IPv4 matches
-  the CIDR (e.g. don't leak events off your home LAN). Blank = always publish.
-- **Per-event mode** — each event independently OFF / REDACTED / FULL. Some events
-  have no sensitive fields (VCS commit, test-started, focus gained/lost) — for
-  those REDACTED silently behaves as FULL.
-- If every event is OFF, a startup notification warns you on project open.
+- **Broker connection** — the MQTT broker URL (`tcp://host:1883`), username,
+  password, and client ID. The password is stored via the IDE's PasswordSafe,
+  not in the plain settings XML.
+- **Topic prefix** — defaults to `ide-events`. The published topic is
+  `{prefix}/{hostname}` when *include host* is enabled.
+- **Home subnet (CIDR)** — if set, the plugin only publishes when one of your
+  local IPv4 addresses matches this CIDR, so you can avoid leaking events
+  outside your home network. Leave it blank to always publish.
+- **Per-event mode** — each event can independently be set to OFF, REDACTED,
+  or FULL. A few events have no sensitive fields to begin with (VCS commit,
+  test started, focus gained/lost), so REDACTED behaves the same as FULL for
+  those.
+- If every event is turned off, a startup notification warns you when you
+  open a project.
 
 ## Development
 
@@ -100,35 +106,42 @@ those by hand.
 
 ### Commits & releases
 
-Conventional Commits, enforced by commitlint. Release automated via
-semantic-release on `main` (version bump in `gradle.properties`, changelog,
-GitHub release) — no manual version bumps.
+Commit messages follow Conventional Commits and are checked by commitlint.
+Releases are handled by semantic-release running on `main`: it bumps the
+version in `gradle.properties`, updates the changelog, and creates the GitHub
+release. Don't bump the version by hand.
 
 ### Architecture
 
-- **`MqttPublisherService`** — app-level service, connects on init in pooled
-  thread. `publish()` fire-and-forget, checks: connected? on home network?
-  event mode ≠ OFF? Call `reconfigure()` after settings change.
-- **`PluginSettings`** — `PersistentStateComponent`, stored `DevEventsPublisher.xml`.
-  Password kept separately via PasswordSafe.
-- **`isOnHomeNetwork(subnet)`** — CIDR check against local IPv4s.
-- **`buildEnvelope()`** — builds the CloudEvents map.
-- **Listeners** (`src/main/kotlin/.../listeners/`) — one per extension point,
-  each calls `MqttPublisherService` directly, no intermediate bus. New
-  listeners must be registered in `src/main/resources/META-INF/plugin.xml`
-  before they'll fire.
-- **Settings UI** — `PluginSettingsConfigurable` → `PluginSettingsPanel`,
-  per-event mode is a `JComboBox` in a `JBTable`.
+- **`MqttPublisherService`** is the application-level service that connects
+  to the broker on startup, from a pooled thread. `publish()` is
+  fire-and-forget: it checks whether the plugin is connected, whether you're
+  on your home network, and whether the event's mode isn't OFF, before
+  sending. Call `reconfigure()` after settings change.
+- **`PluginSettings`** is a `PersistentStateComponent` stored in
+  `DevEventsPublisher.xml`. The password is kept separately via PasswordSafe.
+- **`isOnHomeNetwork(subnet)`** checks the CIDR against your local IPv4
+  addresses.
+- **`buildEnvelope()`** builds the CloudEvents envelope.
+- **Listeners**, under `src/main/kotlin/.../listeners/`, exist one per
+  extension point and each call `MqttPublisherService` directly — there's no
+  intermediate event bus. New listeners must also be registered in
+  `src/main/resources/META-INF/plugin.xml` before they'll fire.
+- **The settings UI** is `PluginSettingsConfigurable` backed by
+  `PluginSettingsPanel`; the per-event mode picker is a `JComboBox` inside a
+  `JBTable`.
 
 ## Publishing (maintainer)
 
-Not yet automated (see task list). For now:
+Publishing to the Marketplace isn't automated yet (see the task list). For
+now, do it manually:
 
 ```bash
 ./gradlew publishPlugin
 ```
 
-Needs `PUBLISH_TOKEN` env var (JetBrains Marketplace token). Or upload the
-built zip manually via the [Plugin Repository upload page][jb:upload].
+This needs a `PUBLISH_TOKEN` environment variable set to a JetBrains
+Marketplace token. Alternatively, upload the built zip yourself via the
+[Plugin Repository upload page][jb:upload].
 
 [jb:upload]: https://plugins.jetbrains.com/plugin/upload
