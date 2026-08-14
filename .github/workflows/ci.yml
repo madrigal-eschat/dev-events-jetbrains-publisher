@@ -9,17 +9,17 @@ on:
 jobs:
   commitlint:
     if: github.event_name == 'pull_request'
-    uses: madrigal-eschat/dev-events-mqtt/.github/workflows/_commitlint.yml@main
+    uses: madrigal-eschat/ci-workflows/.github/workflows/_commitlint.yml@4f6c6843f3645fc9221822201300088b531534ea # v1.0.0
     with:
       from-sha: ${{ github.event.pull_request.base.sha }}
       to-sha: ${{ github.event.pull_request.head.sha }}
 
   ci:
-    uses: madrigal-eschat/dev-events-mqtt/.github/workflows/_kotlin-ci.yml@main
+    uses: madrigal-eschat/ci-workflows/.github/workflows/_kotlin-ci.yml@4f6c6843f3645fc9221822201300088b531534ea # v1.0.0
 
   coverage:
     if: github.event_name == 'pull_request'
-    uses: madrigal-eschat/dev-events-mqtt/.github/workflows/_kotlin-coverage.yml@main
+    uses: madrigal-eschat/ci-workflows/.github/workflows/_kotlin-coverage.yml@4f6c6843f3645fc9221822201300088b531534ea # v1.0.0
     with:
       base-ref: ${{ github.base_ref }}
 
@@ -30,7 +30,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
-    uses: madrigal-eschat/dev-events-mqtt/.github/workflows/_semrel.yml@main
+    uses: madrigal-eschat/ci-workflows/.github/workflows/_semrel.yml@4f6c6843f3645fc9221822201300088b531534ea # v1.0.0
     secrets:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
